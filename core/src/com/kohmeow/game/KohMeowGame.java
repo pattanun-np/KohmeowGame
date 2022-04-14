@@ -14,6 +14,7 @@ public class KohMeowGame extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		img = new Texture("badlogic.jpg");
 		System.out.print("Loading");
+		System.out.print("Wow")
 	}
 
 	@Override
