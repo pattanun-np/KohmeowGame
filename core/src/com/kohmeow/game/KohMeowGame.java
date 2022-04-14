@@ -1,33 +1,29 @@
 package com.kohmeow.game;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
 
-public class KohMeowGame extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture img;
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
+public class KohMeowGame extends Game {
+
+	public static final float UNIT_SCALE = 1/32f;
+	public SpriteBatch batch;
+	public static AssetManager manager;
 	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
-		System.out.print("Loading");
-		System.out.print("Wow")
+		manager = new AssetManager();
+		manager.load("KohMeow.wav", Music.class);
+		manager.finishLoading();
 	}
 
 	@Override
 	public void render () {
-		ScreenUtils.clear(1, 0, 0, 1);
-		batch.begin();
-		batch.draw(img, 0, 0);
-		batch.end();
+		super.render();
 	}
 	
-	@Override
-	public void dispose () {
-		batch.dispose();
-		img.dispose();
-	}
+
 }
