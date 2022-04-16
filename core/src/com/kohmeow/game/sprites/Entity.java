@@ -61,11 +61,11 @@ public class Entity extends Sprite {
     public Entity(){
         this.nextPosition = new Vector2();
         this.currentPosition = new Vector2();
-        this.boundingBox = new Rectangle(); // Define box allow player that can plant or wetering
+        boundingBox = new Rectangle(); // Define box allow player that can plant or watering
         this.velocity = new Vector2(2.5f,2.5f); // (2.5,2.5) cord/s
         frameTime = 0f;
         currentDirection = Direction.DOWN;
-        texture = new Texture("light.png");
+        texture = new Texture("slaim.png");
         loadSprite();
         loadAnimations();
 
@@ -91,17 +91,17 @@ public class Entity extends Sprite {
     private void loadAnimations() {
 
         TextureRegion[][] textureFrames = TextureRegion.split(texture, 64, 64);
-        walkDownFrames = new Array<TextureRegion>(9);
-        walkUpFrames = new Array<TextureRegion>(9);
-        walkLeftFrames = new Array<TextureRegion>(9);
-        walkRightFrames = new Array<TextureRegion>(9);
+        walkDownFrames = new Array<TextureRegion>(10);
+        walkUpFrames = new Array<TextureRegion>(10);
+        walkLeftFrames = new Array<TextureRegion>(10);
+        walkRightFrames = new Array<TextureRegion>(10);
 
         /// Array of texture
-        for(int i = 0; i < 8; i++){
+        for(int i = 0; i < 9; i++){
             walkDownFrames.insert(i, textureFrames[10][i+1]);
 
         }
-        for(int i = 0; i < 8; i++){
+        for(int i = 0; i < 9; i++){
             walkUpFrames.insert(i, textureFrames[8][i+1]);
         }
         for(int i = 0; i < 9; i++){
