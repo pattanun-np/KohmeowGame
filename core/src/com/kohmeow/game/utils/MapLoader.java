@@ -26,8 +26,6 @@ public class MapLoader {
 
     }
 
-
-
     public Vector2 getPlayerSpawn() {
         return playerSpawn;
     }

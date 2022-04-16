@@ -24,15 +24,11 @@ public class Entity extends Sprite {
     Walking animation loop
 
     */
-    private Animation<TextureRegion> walkLeft;
-    private Animation<TextureRegion> walkRight;
-    private Animation<TextureRegion> walkUp;
-    private Animation<TextureRegion> walkDown;
+    private Animation<TextureRegion> walk;
 
-    private Array<TextureRegion> walkLeftFrames;
-    private Array<TextureRegion> walkRightFrames;
-    private Array<TextureRegion> walkUpFrames;
-    private Array<TextureRegion> walkDownFrames;
+
+    private Array<TextureRegion> walkFrames;
+
 
     private Vector2 nextPosition;
     private Vector2 currentPosition;
@@ -91,30 +87,16 @@ public class Entity extends Sprite {
     private void loadAnimations() {
 
         TextureRegion[][] textureFrames = TextureRegion.split(texture, 64, 64);
-        walkDownFrames = new Array<TextureRegion>(10);
-        walkUpFrames = new Array<TextureRegion>(10);
-        walkLeftFrames = new Array<TextureRegion>(10);
-        walkRightFrames = new Array<TextureRegion>(10);
+        walkFrames = new Array<TextureRegion>(9);
 
         /// Array of texture
-        for(int i = 0; i < 9; i++){
-            walkDownFrames.insert(i, textureFrames[10][i+1]);
+        for(int i = 0; i < 9; i++) {
+            walkFrames.insert(i, textureFrames[0][i + 1]);
 
         }
-        for(int i = 0; i < 9; i++){
-            walkUpFrames.insert(i, textureFrames[8][i+1]);
-        }
-        for(int i = 0; i < 9; i++){
-            walkLeftFrames.insert(i, textureFrames[9][i]);
-        }
-        for(int i = 0; i < 9; i++){
-            walkRightFrames.insert(i, textureFrames[11][i]);
-        }
 
-        walkDown = new Animation<TextureRegion>(.1f, walkDownFrames, Animation.PlayMode.LOOP);
-        walkUp = new Animation<TextureRegion>(.1f, walkUpFrames, Animation.PlayMode.LOOP);
-        walkLeft = new Animation<TextureRegion>(.1f, walkLeftFrames, Animation.PlayMode.LOOP);
-        walkRight = new Animation<TextureRegion>(.1f, walkRightFrames, Animation.PlayMode.LOOP);
+        walk = new Animation<TextureRegion>(.1f, walkFrames, Animation.PlayMode.LOOP);
+
     }
 
     // setDirection of spite
@@ -123,16 +105,16 @@ public class Entity extends Sprite {
         this.currentDirection = direction;
         switch (currentDirection){
             case DOWN:
-                currentFrame = walkDown.getKeyFrame(frameTime);
+                currentFrame = walk.getKeyFrame(frameTime);
                 break;
             case UP:
-                currentFrame = walkUp.getKeyFrame(frameTime);
+                currentFrame = walk.getKeyFrame(frameTime);
                 break;
             case LEFT:
-                currentFrame = walkLeft.getKeyFrame(frameTime);
+                currentFrame = walk.getKeyFrame(frameTime);
                 break;
             case RIGHT:
-                currentFrame = walkRight.getKeyFrame(frameTime);
+                currentFrame = walk.getKeyFrame(frameTime);
                 break;
             default:
                 break;

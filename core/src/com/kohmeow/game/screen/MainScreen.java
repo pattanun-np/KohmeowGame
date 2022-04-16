@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthoCachedTiledMapRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -27,7 +28,6 @@ public class MainScreen implements Screen {
 
     private OrthographicCamera cam; /// Define Camera Top down;
     private Viewport gameView;
-
     private Vector3 tp;
 
 
@@ -47,6 +47,11 @@ public class MainScreen implements Screen {
     private PlayerController controller;
     private ShapeRenderer shapeRenderer;
 
+    private Viewport viewport;
+
+    private TextureRegion[][] textureFrames;
+
+
     private Music music;
 
 
@@ -57,18 +62,35 @@ public class MainScreen implements Screen {
 
     public MainScreen(KohMeowGame game) {
         this.game = game;
+
         cam = new OrthographicCamera();
+
         gameView = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), cam);
+
+        cam.setToOrtho(false, gameView.getWorldWidth(), gameView.getWorldHeight());
+
+        map = new TmxMapLoader().load("Base.tmx");
+        renderer = new OrthoCachedTiledMapRenderer(map);
+        renderer.setView(cam);
+
+        loader = new MapLoader(this);
+        mapWidth = map.getProperties().get("width", Integer.class) * 32;
+        mapHeight = map.getProperties().get("height", Integer.class) *32;
+
+        player = new Entity();
+        player.startingPosition(loader.getPlayerSpawn().x, loader.getPlayerSpawn().y);
         currentPlayerSprite = player.getFrameSprite();
+
         controller = new PlayerController(this, player);
         shapeRenderer = new ShapeRenderer();
         cam.zoom = .5f;
+
         tp = new Vector3();
 
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(controller);
         Gdx.input.setInputProcessor(inputMultiplexer);
-
+//
 //        music = KohMeowGame.manager.get("KohMeow.wav", Music.class);
 //        music.setLooping(true);
 //        music.setVolume(.1f);
@@ -99,6 +121,7 @@ public class MainScreen implements Screen {
         player.update(delta);
 
         renderer.render();
+
         controller.update(delta);
         game.batch.setProjectionMatrix(cam.combined);
         currentPlayerFrame = player.getCurrentFrame();
@@ -113,9 +136,13 @@ public class MainScreen implements Screen {
         shapeRenderer.setProjectionMatrix(cam.combined);
         Gdx.gl20.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+//        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
+//        Gdx.gl20.glDisable(GL20.GL_BLEND);
+        viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         gameView.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+
     }
 
 
