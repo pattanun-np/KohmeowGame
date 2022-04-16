@@ -61,8 +61,8 @@ public class Entity extends Sprite {
     public Entity(){
         this.nextPosition = new Vector2();
         this.currentPosition = new Vector2();
-        this.boundingBox = new Rectangle();
-        this.velocity = new Vector2(2.5f,2.5f);
+        this.boundingBox = new Rectangle(); // Define box allow player that can plant or wetering
+        this.velocity = new Vector2(2.5f,2.5f); // (2.5,2.5) cord/s
         frameTime = 0f;
         currentDirection = Direction.DOWN;
         texture = new Texture("light.png");
@@ -82,7 +82,7 @@ public class Entity extends Sprite {
         boundingBox.set(nextPosition.x + 20, nextPosition.y, 24, 12);
     }
 
-    private void loadSprite() {
+    private void loadSprite() { // Load standing sprite
         TextureRegion[][] textureFrames = TextureRegion.split(texture, 64, 64);
         frameSprite = new Sprite(textureFrames[0][0].getTexture(), 0, 0, 64, 64);
         currentFrame = textureFrames[0][0];
@@ -96,6 +96,7 @@ public class Entity extends Sprite {
         walkLeftFrames = new Array<TextureRegion>(9);
         walkRightFrames = new Array<TextureRegion>(9);
 
+        /// Array of texture
         for(int i = 0; i < 8; i++){
             walkDownFrames.insert(i, textureFrames[10][i+1]);
 
@@ -116,6 +117,7 @@ public class Entity extends Sprite {
         walkRight = new Animation<TextureRegion>(.1f, walkRightFrames, Animation.PlayMode.LOOP);
     }
 
+    // setDirection of spite
     public void setDirection(Direction direction, float delta){
         this.previousDirection = this.currentDirection;
         this.currentDirection = direction;
@@ -137,6 +139,8 @@ public class Entity extends Sprite {
         }
     }
 
+
+    /// Move
     public void move(Direction direction, float delta) {
         float x = currentPosition.x;
         float y = currentPosition.y;
@@ -169,7 +173,7 @@ public class Entity extends Sprite {
 
     public Sprite getFrameSprite() {
         return frameSprite;
-    }
+    } // getFrameSprite
 
     public TextureRegion getCurrentFrame() {
         return currentFrame;
@@ -189,7 +193,7 @@ public class Entity extends Sprite {
     }
     public void setCurrentToNext(){
         setCurrentPosition(nextPosition.x, nextPosition.y);
-    }
+    }//  set current position to next pos
 
     public static Rectangle getBoundingBox() {
         return boundingBox;

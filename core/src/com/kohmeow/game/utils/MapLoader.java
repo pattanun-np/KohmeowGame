@@ -6,13 +6,14 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.kohmeow.game.screen.MainScreen;
 
 
 public class MapLoader {
     private Vector2 playerSpawn;
     private TiledMap map;
 
-    public MapLoader(PlayScreen screen) {
+    public MapLoader(MainScreen screen) {
         map = screen.getMap();
         playerSpawn = new Vector2();
 
