@@ -1,23 +1,29 @@
 package com.kohmeow.game.utils;
 
+
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector3;
-import com.kohmeow.game.screen.MainScreen;
+import com.kohmeow.game.crops.Crop;
+import com.kohmeow.game.screen.GameScreen;
 import com.kohmeow.game.sprites.Entity;
 
 
 public class PlayerController implements InputProcessor {
-    private Entity player;
 
+    private Entity player;
+    private Crop crop;
     private boolean left;
-    private  boolean right;
+    private boolean right;
     private boolean up;
     private boolean down;
-    private MainScreen screen;
+    private GameScreen screen;
     Vector3 tp;
 
-    public PlayerController(MainScreen screen, Entity player){
+
+    public PlayerController(GameScreen screen, Entity player) {
         this.player = player;
         this.screen = screen;
         tp = new Vector3();
@@ -29,15 +35,14 @@ public class PlayerController implements InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
-
-        if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A ) // Player pass left arrow or A
+        if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A)
             this.left = true;
-        if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D ) // Player pass left arrow or A
-            this.right = true;
-        if (keycode == Input.Keys.UP || keycode == Input.Keys.W ) // Player pass left arrow or A
+        if (keycode == Input.Keys.UP || keycode == Input.Keys.W)
             this.up = true;
-        if (keycode == Input.Keys.DOWN || keycode == Input.Keys.S ) // Player pass left arrow or A
+        if (keycode == Input.Keys.DOWN || keycode == Input.Keys.S)
             this.down = true;
+        if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D)
+            this.right = true;
 
         return true;
     }
@@ -62,6 +67,7 @@ public class PlayerController implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+
         return false;
     }
 
@@ -81,17 +87,26 @@ public class PlayerController implements InputProcessor {
     }
 
     @Override
-    public boolean scrolled(float amountX, float amountY) {
+    public boolean scrolled(float amount, float amount2) {
+//        screen.intType += amount;
+//        if (screen.intType > screen.getItems().size - 1)
+//            screen.intType = 0;
+//        if (screen.intType < 0)
+//            screen.intType = screen.getItems().size - 1;
+//        screen.setMouseCrop(screen.getItems().get(screen.intType));
         return false;
     }
-    public void update(float delta){
+
+    public void update(float delta) {
         processInput(delta);
     }
 
-    private void processInput(float delta){
-        if(up){
+    private void processInput(float delta) {
+        if (up) {
             player.move(Entity.Direction.UP, delta);
-        }else if (down) {
+            player.setState(Entity.State.WALKING);
+            player.setDirection(Entity.Direction.UP, delta);
+        } else if (down) {
             player.move(Entity.Direction.DOWN, delta);
             player.setState(Entity.State.WALKING);
             player.setDirection(Entity.Direction.DOWN, delta);
@@ -108,5 +123,4 @@ public class PlayerController implements InputProcessor {
             player.setDirection(player.getDirection(), delta);
         }
     }
-
 }

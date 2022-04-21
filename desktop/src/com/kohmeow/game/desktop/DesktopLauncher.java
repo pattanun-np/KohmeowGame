@@ -1,5 +1,6 @@
 package com.kohmeow.game.desktop;
 
+// import com.badlogic.gdx.Files;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.kohmeow.game.KohMeowGame;
@@ -10,6 +11,9 @@ public class DesktopLauncher {
 		config.title = "KohMeow";
 		config.width = 800;
 		config.height = 600;
+		config.vSyncEnabled	= true;
+		
+		// config.addIcon("icontest.png", Files.FileType.Internal);
 		new LwjglApplication(new KohMeowGame(), config);
 	}
 }
