@@ -5,6 +5,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -13,10 +14,13 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kohmeow.game.KohMeowGame;
 import com.kohmeow.game.sprites.Entity;
+import com.kohmeow.game.utils.Items;
 import com.kohmeow.game.utils.MapLoader;
 import com.kohmeow.game.utils.PlayerController;
 
@@ -37,15 +41,38 @@ public class GameScreen extends ScreenAdapter {
 
     private MapObject object;
 
+    private Viewport viewport;
+
+
+    // Player
     private Entity player;
     private Sprite currentPlayerSprite;
     private TextureRegion currentPlayerFrame;
 
     private PlayerController controller;
 
+    private Stage stage;
+
     private MapLoader mapLoader;
 
 
+    private Items.ItemType currentType;
+    private Items currentItem;
+    public int intType;
+
+    private Array<Items> items;
+
+
+
+    private Texture box;
+    private Texture border;
+
+    private Texture bucketTexture;
+
+    private Items bucket;
+
+    private  TextureRegion mouseFrame;
+    private Texture mouseCrop;
     private BitmapFont font;
 
 
@@ -61,7 +88,7 @@ public class GameScreen extends ScreenAdapter {
         renderer = new OrthogonalTiledMapRenderer(map);
         renderer.setView(cam);
 
-        cam.zoom = 1f;
+        cam.zoom = .5f;
 
         mapWidth = map.getProperties().get("width", Integer.class) * 32;
         mapHeight = map.getProperties().get("height", Integer.class) * 32;
@@ -74,16 +101,42 @@ public class GameScreen extends ScreenAdapter {
         player.startingPosition(mapLoader.getPlayerSpawnPoint().x, mapLoader.getPlayerSpawnPoint().y);
         currentPlayerSprite = player.getFrameSprite();
 
+        items = new Array<Items>(9);
+        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new OrthographicCamera());
+        stage = new Stage(viewport, game.batch);
+
         controller = new PlayerController(this, player);
 
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
 
         inputMultiplexer.addProcessor(controller);
         Gdx.input.setInputProcessor(inputMultiplexer);
+        intType = 0;
+
+
+        box = new Texture("box.png");
+        border = new Texture("border.png");
+        bucketTexture = new Texture("bucket.png");
+        bucket = new Items(bucketTexture, Items.ItemType.TOOL, Items.Item.BUCKET);
+
+        setMouseCrop(bucket);
+
+
+    }
+    public void setMouseCrop(Items item){
+        mouseFrame = item.getTextureRegion();
+        currentItem = item;
+        currentType = item.getType();
+
+    }
+    @Override
+    public void show() {
 
     }
 
-
+    public Array<Items> getItems() {
+        return items;
+    }
     @Override
     public void render(float delta) {
 
@@ -108,14 +161,27 @@ public class GameScreen extends ScreenAdapter {
 
         controller.update(delta);
 
-        currentPlayerFrame = player.getCurrentFrame();
-
         game.batch.setProjectionMatrix(cam.combined);
 
+        currentPlayerFrame = player.getCurrentFrame();
+
         renderer.setView(cam);
+
         game.batch.begin();
 
         game.batch.draw(currentPlayerFrame, currentPlayerSprite.getX(), currentPlayerSprite.getY());
+
+
+        for (int i = 0; i < 9; i++) {
+            game.batch.draw(box, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)), cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
+            if (i < items.size) {
+                game.batch.draw(items.get(i).getTextureRegion(), (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)), cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
+                if (items.get(i).getType() == Items.ItemType.SEED)
+                    font.draw(game.batch, String.format("%d", items.get(i).getNum()), (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2) - 6), cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 12);
+                if (items.get(i).getItem() == currentItem.getItem())
+                    game.batch.draw(border, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)), cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
+            }
+        }
 
         game.batch.end();
         //box2DDebugRenderer.render(world, camera.combined.scl());

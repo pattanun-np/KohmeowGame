@@ -83,17 +83,19 @@ public class PlayerController implements InputProcessor {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
+        System.out.println(String.format("Mouse: Pos (%d,%d)",screenX,screenY));
+
         return false;
     }
 
     @Override
     public boolean scrolled(float amount, float amount2) {
-//        screen.intType += amount;
-//        if (screen.intType > screen.getItems().size - 1)
-//            screen.intType = 0;
-//        if (screen.intType < 0)
-//            screen.intType = screen.getItems().size - 1;
-//        screen.setMouseCrop(screen.getItems().get(screen.intType));
+        screen.intType += amount;
+        if (screen.intType > screen.getItems().size - 1)
+            screen.intType = 0;
+        if (screen.intType < 0)
+            screen.intType = screen.getItems().size - 1;
+        screen.setMouseCrop(screen.getItems().get(screen.intType));
         return false;
     }
 

@@ -25,6 +25,7 @@ public class KohMeowGame extends Game {
         batch = new SpriteBatch();
         manager = new AssetManager();
 
+        manager.finishLoading();
 
         setScreen(new GameScreen(this));
 	}
