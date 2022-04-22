@@ -24,6 +24,7 @@ public class KohMeowGame extends Game {
 	public void create () {
         batch = new SpriteBatch();
         manager = new AssetManager();
+        
         manager.load("SongForKohMeow.mp3", Music.class);
 
         manager.finishLoading();

@@ -11,10 +11,14 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -56,7 +60,6 @@ public class GameScreen extends ScreenAdapter {
     private PlayerController controller;
 
     private Stage stage;
-
 
     private MapLoader mapLoader;
 
@@ -141,7 +144,22 @@ public class GameScreen extends ScreenAdapter {
     public Array<Items> getItems() {
         return items;
     }
+    public boolean checkCollision(Rectangle boundingBox, MapLayer objectLayer) {
+        for (MapObject object : objectLayer.getObjects()) {
+            if (object instanceof RectangleMapObject) {
+                Rectangle rectangle = ((RectangleMapObject) object).getRectangle();
+                if (boundingBox.overlaps(rectangle))
+                    return true;
+            }
 
+        }
+        return false;
+    }
+
+    public boolean isCollision(Rectangle boundingBox){
+        MapLayer objectLayer = map.getLayers().get("Collision");
+        return checkCollision(boundingBox, objectLayer);
+    }
     @Override
     public void render(float delta) {
 
@@ -163,8 +181,9 @@ public class GameScreen extends ScreenAdapter {
                 && currentPlayerSprite.getY() - cam.viewportHeight / 2 * cam.zoom > 0) {
             cam.position.y = Entity.getPlayerCenterY();
         }
+        if (!isCollision(Entity.getBoundingBox()))
+            player.setCurrentToNext();
 
-        player.setCurrentToNext();
 
         renderer.render();
 
@@ -181,24 +200,32 @@ public class GameScreen extends ScreenAdapter {
         game.batch.draw(currentPlayerFrame, currentPlayerSprite.getX(), currentPlayerSprite.getY());
 
         for (int i = 0; i < 9; i++) {
-             game.batch.draw(box, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
-                     cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
-             if (i < items.size) {
-                 game.batch.draw(items.get(i).getTextureRegion(),
-                         (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
-                         cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
-                 if (items.get(i).getType() == Items.ItemType.SEED)
-                     font.draw(game.batch, String.format("%d", items.get(i).getNum()),
-                         (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2) - 6),
-                             cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 12);
-                 if (items.get(i).getItem() == currentItem.getItem())
-                     game.batch.draw(border, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
-                             cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
-             }
-         }
-            
+            game.batch.draw(box, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
+                    cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
+            if (i < items.size) {
+                game.batch.draw(items.get(i).getTextureRegion(),
+                        (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
+                        cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
+                if (items.get(i).getType() == Items.ItemType.SEED)
+                    font.draw(game.batch, String.format("%d", items.get(i).getNum()),
+                            (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2) - 6),
+                            cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 12);
+                if (items.get(i).getItem() == currentItem.getItem())
+                    game.batch.draw(border, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
+                            cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
+            }
+        }
+
         game.batch.end();
-      
+
+        Matrix4 mat = cam.combined.cpy();
+        mat.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        Gdx.gl20.glDisable(GL20.GL_BLEND);
+        game.batch.setProjectionMatrix(mat);
+
+        viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        gameView.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
     }
 
     public TiledMap getMap() {

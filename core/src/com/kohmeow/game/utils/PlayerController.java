@@ -79,7 +79,7 @@ public class PlayerController implements InputProcessor {
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
         System.out.println(String.format("Mouse: Pos (%d,%d)", screenX, screenY));
-
+        
         return false;
     }
 
