@@ -1,33 +1,41 @@
 package com.kohmeow.game;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
 
-public class KohMeowGame extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture img;
-	
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.kohmeow.game.screen.GameScreen;
+
+public class KohMeowGame extends Game {
+
+
+    public static final float UNIT_SCALE = 1/32f;
+
+    public SpriteBatch batch;
+    //So, sprite batching is just any system that lets you draw multiple sprites
+    // at once and hopefully gain some efficiency from it
+
+    public static AssetManager manager;
+
+    // AssetManager is Class to help
 	@Override
 	public void create () {
-		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
-		System.out.print("Loading");
-		System.out.print("Wow");
+        batch = new SpriteBatch();
+        manager = new AssetManager();
+
+        manager.finishLoading();
+
+        setScreen(new GameScreen(this));
 	}
 
-	@Override
-	public void render () {
-		ScreenUtils.clear(1, 0, 0, 1);
-		batch.begin();
-		batch.draw(img, 0, 0);
-		batch.end();
-	}
+    @Override
+    public void render(){
+        super.render();
+    }
+
+
 	
-	@Override
-	public void dispose () {
-		batch.dispose();
-		img.dispose();
-	}
+
 }
