@@ -13,6 +13,7 @@ public class Items {
         TOOL
     }
     public enum Item{
+        WHEAT,
         TOMATO,
         POTATO,
         BUCKET,

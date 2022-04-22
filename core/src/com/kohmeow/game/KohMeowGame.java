@@ -2,11 +2,11 @@ package com.kohmeow.game;
 
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.audio.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.kohmeow.game.screen.GameScreen;
+
 
 public class KohMeowGame extends Game {
 
@@ -24,6 +24,7 @@ public class KohMeowGame extends Game {
 	public void create () {
         batch = new SpriteBatch();
         manager = new AssetManager();
+        manager.load("SongForKohMeow.mp3", Music.class);
 
         manager.finishLoading();
 

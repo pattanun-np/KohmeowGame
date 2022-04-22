@@ -1,15 +1,11 @@
 package com.kohmeow.game.utils;
 
-
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector3;
 import com.kohmeow.game.crops.Crop;
 import com.kohmeow.game.screen.GameScreen;
 import com.kohmeow.game.sprites.Entity;
-
 
 public class PlayerController implements InputProcessor {
 
@@ -21,7 +17,6 @@ public class PlayerController implements InputProcessor {
     private boolean down;
     private GameScreen screen;
     Vector3 tp;
-
 
     public PlayerController(GameScreen screen, Entity player) {
         this.player = player;
@@ -83,7 +78,7 @@ public class PlayerController implements InputProcessor {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        System.out.println(String.format("Mouse: Pos (%d,%d)",screenX,screenY));
+        System.out.println(String.format("Mouse: Pos (%d,%d)", screenX, screenY));
 
         return false;
     }
@@ -95,6 +90,7 @@ public class PlayerController implements InputProcessor {
             screen.intType = 0;
         if (screen.intType < 0)
             screen.intType = screen.getItems().size - 1;
+
         screen.setMouseCrop(screen.getItems().get(screen.intType));
         return false;
     }
@@ -104,25 +100,51 @@ public class PlayerController implements InputProcessor {
     }
 
     private void processInput(float delta) {
+        System.out.println(" Left: " + left + " Right: " + right + " Up: " + up + " Down: " + down);
+        System.out.println("State: " + player.getState());
+        System.out.println("Direction : " + player.getDirection());
+        // System.out.println(String.format("Player: Pos
+        // (%d,%d)",player.getX(),player.getY()));
         if (up) {
-            player.move(Entity.Direction.UP, delta);
+            player.move(Entity.Direction.WALKING_UP, delta);
             player.setState(Entity.State.WALKING);
-            player.setDirection(Entity.Direction.UP, delta);
+            player.setDirection(Entity.Direction.WALKING_UP, delta);
         } else if (down) {
-            player.move(Entity.Direction.DOWN, delta);
+            player.move(Entity.Direction.WALKING_DOWN, delta);
             player.setState(Entity.State.WALKING);
-            player.setDirection(Entity.Direction.DOWN, delta);
+            player.setDirection(Entity.Direction.WALKING_DOWN, delta);
         } else if (right) {
-            player.move(Entity.Direction.RIGHT, delta);
+            player.move(Entity.Direction.WALKING_RIGHT, delta);
             player.setState(Entity.State.WALKING);
-            player.setDirection(Entity.Direction.RIGHT, delta);
+            player.setDirection(Entity.Direction.WALKING_RIGHT, delta);
         } else if (left) {
-            player.move(Entity.Direction.LEFT, delta);
+            player.move(Entity.Direction.WALKING_LEFT, delta);
             player.setState(Entity.State.WALKING);
-            player.setDirection(Entity.Direction.LEFT, delta);
-        } else {
+            player.setDirection(Entity.Direction.WALKING_LEFT, delta);
+
+        } else if (!up && !down && !left && !right) {
             player.setState(Entity.State.IDLE);
-            player.setDirection(player.getDirection(), delta);
+
+            if (player.getDirection() == Entity.Direction.WALKING_UP && player.getState() == Entity.State.IDLE) {
+                System.out.println("IDLE UP");
+                player.setDirection(Entity.Direction.UP, delta);
+
+            } else if (player.getDirection() == Entity.Direction.WALKING_DOWN
+                    && player.getState() == Entity.State.IDLE) {
+                System.out.println("IDLE DOWN");
+                player.setDirection(Entity.Direction.DOWN, delta);
+
+            } else if (player.getDirection() == Entity.Direction.WALKING_RIGHT
+                    && player.getState() == Entity.State.IDLE) {
+                System.out.println("IDLE RIGHT");
+                player.setDirection(Entity.Direction.RIGHT, delta);
+
+            } else if (player.getDirection() == Entity.Direction.WALKING_LEFT
+                    && player.getState() == Entity.State.IDLE) {
+                System.out.println("IDLE LEFT");
+                player.setDirection(Entity.Direction.LEFT, delta);
+            }
         }
+
     }
 }
