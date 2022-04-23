@@ -29,7 +29,10 @@ public class KohMeowGame extends Game {
         System.out.println("GameScreen");
         System.out.println("Loading Assets");
         System.out.println("-------------------------------------");
+        manager.load("Sound/Player/WalkOnGrass.mp3",Sound.class);
+        manager.load("Sound/Player/PouringWater.mp3",Sound.class);
         manager.load("music/SongForKohMeow.mp3", Music.class);
+        manager.load("music/Leaning On the Everlasting Arms - Zachariah Hickman.mp3", Music.class);
         // manager.load("font/small_letters_font.fnt",BitmapFont.class);
 
         manager.finishLoading();

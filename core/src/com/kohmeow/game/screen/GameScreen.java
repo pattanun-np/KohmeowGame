@@ -21,16 +21,16 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kohmeow.game.KohMeowGame;
-import com.kohmeow.game.Entity.Player.Entity;
+import com.kohmeow.game.Controller.PlayerController;
+import com.kohmeow.game.Entity.Player.Player;
 import com.kohmeow.game.utils.Items;
 import com.kohmeow.game.utils.MapLoader;
-import com.kohmeow.game.utils.PlayerController;
 
 public class GameScreen extends ScreenAdapter {
     // Instance Var
@@ -49,12 +49,10 @@ public class GameScreen extends ScreenAdapter {
 
     private MapObject object;
 
-    private Box2DDebugRenderer box2DDebugRenderer;
-
     private Viewport viewport;
 
     // Player
-    private Entity player;
+    private Player player;
     private Sprite currentPlayerSprite;
     private TextureRegion currentPlayerFrame;
 
@@ -103,7 +101,7 @@ public class GameScreen extends ScreenAdapter {
 
         mapLoader = new MapLoader(this);
 
-        player = new Entity();
+        player = new Player();
 
         player.startingPosition(mapLoader.getPlayerSpawnPoint().x, mapLoader.getPlayerSpawnPoint().y);
         currentPlayerSprite = player.getFrameSprite();
@@ -148,10 +146,10 @@ public class GameScreen extends ScreenAdapter {
         
         setSelectedItem(potato);
 
-        music = KohMeowGame.manager.get("music/SongForKohMeow.mp3", Music.class);
+        music = KohMeowGame.manager.get("music/Leaning On the Everlasting Arms - Zachariah Hickman.mp3", Music.class);
         music.setLooping(true);
-        music.setVolume(.1f);
-        music.play();
+        music.setVolume(.05f);
+        // music.play();
 
     }
 
@@ -216,14 +214,14 @@ public class GameScreen extends ScreenAdapter {
 
         if (currentPlayerSprite.getX() + (cam.viewportWidth / 2 * cam.zoom) < mapWidth
                 && currentPlayerSprite.getX() - (cam.viewportWidth / 2 * cam.zoom) > 0) {
-            cam.position.x = Entity.getPlayerCenterX();
+            cam.position.x = Player.getPlayerCenterX();
         }
 
         if (currentPlayerSprite.getY() + (cam.viewportHeight / 2 * cam.zoom) < mapHeight
                 && currentPlayerSprite.getY() - cam.viewportHeight / 2 * cam.zoom > 0) {
-            cam.position.y = Entity.getPlayerCenterY();
+            cam.position.y = Player.getPlayerCenterY();
         }
-        if (!isCollision(Entity.getBoundingBox()))
+        if (!isCollision(Player.getBoundingBox()))
             player.setCurrentToNext();
 
         renderer.render();
