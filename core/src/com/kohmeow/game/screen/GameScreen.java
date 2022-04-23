@@ -1,9 +1,12 @@
 package com.kohmeow.game.screen;
 
+import java.util.ResourceBundle;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -14,6 +17,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -29,7 +33,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kohmeow.game.KohMeowGame;
 import com.kohmeow.game.Controller.PlayerController;
 import com.kohmeow.game.Entity.Player.Player;
-import com.kohmeow.game.utils.Items;
+import com.kohmeow.game.Entity.Plants.Crop;
+import com.kohmeow.game.resource.ResourceMannager;
 import com.kohmeow.game.utils.MapLoader;
 
 public class GameScreen extends ScreenAdapter {
@@ -46,7 +51,7 @@ public class GameScreen extends ScreenAdapter {
     // Private MapLoader loader;
     private int mapWidth;
     private int mapHeight;
-
+    private TextureRegion[][] textureFrames;
     private MapObject object;
 
     private Viewport viewport;
@@ -62,25 +67,21 @@ public class GameScreen extends ScreenAdapter {
 
     private MapLoader mapLoader;
 
-    private Items.ItemType currentType;
-    private Items currentItem;
-    public int intType;
-
-    private Array<Items> items;
-
     private Texture box;
     private Texture border;
-
-    private Texture bucketTexture, cornTexture, carrotTexture, potatoTexture, artichokeTexture, gourdTexture, pepperTexture, hoeTexture, tomatoTexture, wheatTexture;
-
-    Texture emptyTexture;
-
-    private Items bucket, corn, carrot, potato,empty;
+    public int numCrops;
 
     private Music music;
+    public Array<Crop> crops;
     private TextureRegion mouseFrame;
     private Texture mouseCrop;
     private BitmapFont font;
+
+    private ResourceMannager rm;
+
+    public Object currentItem;
+
+    public Object currentType;
 
     public GameScreen(KohMeowGame game) {
         this.game = game;
@@ -94,7 +95,7 @@ public class GameScreen extends ScreenAdapter {
         renderer = new OrthogonalTiledMapRenderer(map);
         renderer.setView(cam);
 
-        cam.zoom = .6f;
+        cam.zoom = .5f;
 
         mapWidth = map.getProperties().get("width", Integer.class) * 32;
         mapHeight = map.getProperties().get("height", Integer.class) * 32;
@@ -103,70 +104,38 @@ public class GameScreen extends ScreenAdapter {
 
         player = new Player();
 
+        mouseCrop = new Texture("Items/Plants.png");
+        textureFrames = TextureRegion.split(mouseCrop, 32, 32);
+
+        crops = new Array<Crop>();
+
         player.startingPosition(mapLoader.getPlayerSpawnPoint().x, mapLoader.getPlayerSpawnPoint().y);
+
         currentPlayerSprite = player.getFrameSprite();
 
-        items = new Array<Items>(9);
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new OrthographicCamera());
+
         stage = new Stage(viewport, game.batch);
 
         controller = new PlayerController(this, player);
+
+        rm = new ResourceMannager();
 
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
 
         inputMultiplexer.addProcessor(controller);
         Gdx.input.setInputProcessor(inputMultiplexer);
-        intType = 0;
 
-        Pixmap pixmap = new Pixmap(32, 32, Format.RGBA8888);
-        pixmap.setColor(0, 0, 0, 0);
-        pixmap.fill();
-
-        box = new Texture("UI/box.png");
-        border = new Texture("UI/border.png");
-        bucketTexture = new Texture("Items/bucket.png");
-        cornTexture = new Texture("Items/Corn.png");
-        carrotTexture = new Texture("Items/Carrot.png");
-        potatoTexture = new Texture("Items/Potato.png");
-        emptyTexture = new Texture(pixmap,false);
-
-        bucket = new Items(bucketTexture, Items.ItemType.TOOL, Items.Item.BUCKET);
-        corn = new Items(cornTexture, Items.ItemType.SEED, Items.Item.CORN);
-        carrot = new Items(carrotTexture, Items.ItemType.SEED, Items.Item.CARROT);
-        potato = new Items(potatoTexture, Items.ItemType.SEED, Items.Item.POTATO);
-  
-
-        int capacity = 9;
-        items = new Array<Items>(capacity);
-
-        items.add(bucket);
-        items.add(corn);
-        items.add(carrot);
-        items.add(potato);
-        
-        setSelectedItem(potato);
-
-        music = KohMeowGame.manager.get("music/Leaning On the Everlasting Arms - Zachariah Hickman.mp3", Music.class);
+        music = rm.musicTheme;
         music.setLooping(true);
-        music.setVolume(.05f);
-        // music.play();
+        music.setVolume(.5f);
+        music.play();
 
-    }
-
-    public void setSelectedItem(Items item) {
-        System.out.println("setSelectedItem"+item);
-        mouseFrame = item.getTextureRegion();
-        currentItem = item;
-        currentType = item.getType();
     }
 
     @Override
     public void show() {
 
-    }
-
-    public Array<Items> getItems() {
-        return items;
     }
 
     public boolean checkCollision(Rectangle boundingBox, MapLayer objectLayer) {
@@ -187,12 +156,6 @@ public class GameScreen extends ScreenAdapter {
         return false;
     }
 
-    public int getTobarSize() {
-
-        return this.items.size;
-
-    }
-
     public boolean isCollision(Rectangle boundingBox) {
         MapLayer objectLayer = map.getLayers().get("Collision");
 
@@ -202,15 +165,17 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
 
+        // System.out.println("Player X: " + player.getX() + " Y: " + player.getY());
+        System.out.println("Num Crops: " + numCrops);
+
         Gdx.gl.glClearColor(0, 0, 0, 1);
 
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        renderer.render();
+
         cam.update();
         player.update(delta);
-        
-
-        System.out.println(cam.position.x + " " + cam.position.y);
 
         if (currentPlayerSprite.getX() + (cam.viewportWidth / 2 * cam.zoom) < mapWidth
                 && currentPlayerSprite.getX() - (cam.viewportWidth / 2 * cam.zoom) > 0) {
@@ -224,8 +189,6 @@ public class GameScreen extends ScreenAdapter {
         if (!isCollision(Player.getBoundingBox()))
             player.setCurrentToNext();
 
-        renderer.render();
-
         controller.update(delta);
 
         game.batch.setProjectionMatrix(cam.combined);
@@ -236,24 +199,16 @@ public class GameScreen extends ScreenAdapter {
 
         game.batch.begin();
 
-        game.batch.draw(currentPlayerFrame, currentPlayerSprite.getX(), currentPlayerSprite.getY());
+        for (int i = 0; i < numCrops; i++) {
 
-        for (int i = 0; i < 9; i++) {
-            game.batch.draw(box, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
-                    cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
-            if (i < items.size) {
-                game.batch.draw(items.get(i).getTextureRegion(),
-                        (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
-                        cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
-                if (items.get(i).getType() == Items.ItemType.SEED){}
-                    // font.draw(game.batch, String.format("%d", items.get(i).getNum()),
-                    // (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2) - 6),
-                    // cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 12);
-                if (items.get(i).getItem() == currentItem.getItem())
-                        game.batch.draw(border, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
-                                cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
-            }
+            game.batch.draw(textureFrames[0][1], crops.get(i).getFrameSprite().getX(),
+                    crops.get(i).getFrameSprite().getY() - 6);
+
+            game.batch.draw(crops.get(i).getCurrentFrame(), crops.get(i).getFrameSprite().getX(),
+                    crops.get(i).getFrameSprite().getY());
+
         }
+        game.batch.draw(currentPlayerFrame, currentPlayerSprite.getX(), currentPlayerSprite.getY());
 
         game.batch.end();
 
@@ -267,8 +222,20 @@ public class GameScreen extends ScreenAdapter {
 
     }
 
+    public OrthographicCamera getCam() {
+        return cam;
+    }
+
     public TiledMap getMap() {
         return map;
+    }
+
+    public void addCrop(com.kohmeow.game.Entity.Plants.Crop crop) {
+        crops.add(crop);
+    }
+
+    public Array<Crop> getCrops() {
+        return crops;
     }
 
     @Override

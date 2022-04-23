@@ -1,11 +1,15 @@
 package com.kohmeow.game.Entity.Plants;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.kohmeow.game.utils.Items;
+
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
+import com.kohmeow.game.resource.ResourceMannager;
 
 public class Crop extends Sprite {
 
@@ -23,43 +27,55 @@ public class Crop extends Sprite {
     private TextureRegion currentFrame;
     private TextureRegion[][] textureFrames;
     private Array<TextureRegion> cropFrames;
-    private TextureRegion dirtFrame;
+    public TextureRegion dirtFrame;
 
-    public Crop(Items.Item item, float x, float y) {
+    private ResourceMannager rm;
+
+    private JsonValue cropInfo;
+    private JsonReader jsonReader;
+    private JsonValue info;
+    private Sprite frameSprite;
+
+    public Crop(String name, float x, float y) {
+        this.jsonReader = new JsonReader();
+
         this.position = new Vector2(x, y);
         this.growthStage = 0;
         this.age = 0;
         this.isWatered = false;
+        
 
         centerX = x - 16;
         centerY = y - 16;
+        texture = new Texture("Items/Plants2.png");
 
-        loadinfo(item);
+        textureFrames = TextureRegion.split(texture, 32, 64);
+        frameSprite = new Sprite(textureFrames[0][0], 0, 0, 32, 32);
+        frameSprite.setX(Math.round(centerX / 32) * 32);
+        frameSprite.setY(Math.round(centerY / 32) * 32);
+
+        dirtFrame = textureFrames[5][2];
+
+        loadinfo(name);
 
     }
 
-    private void loadinfo(Items.Item type) {
-        switch (type) {
-            case WHEAT:
-                this.growthStageDuration = 3;
-                this.price = 10;
-                break;
-            case POTATO:
-                this.growthStageDuration = 5;
-                this.price = 25;
-                break;
-            case CARROT:
-                this.growthStageDuration = 4;
-                this.price = 20;
-                break;
-            case CORN:
-                this.growthStageDuration = 7;
-                this.price = 45;
-                break;
+    private void loadinfo(String name) {
+        cropFrames = new Array<TextureRegion>(5);
 
-            default:
-                break;
-        }
+
+        JsonValue cropInfo = jsonReader.parse(Gdx.files.internal("Items/Crop.json"));
+
+        info = cropInfo.get(name);
+
+        this.growthStageDuration = info.getInt("growthStageDuration");
+        this.price = info.getInt("price");
+
+       
+
+        for (int i = 0; i < 5; i++)
+            cropFrames.insert(i, textureFrames[i][0]);
+        currentFrame = cropFrames.get(0);
 
     }
 
@@ -86,24 +102,30 @@ public class Crop extends Sprite {
         }
     }
 
-    private Sprite getFrameSprite(){
-        return framSprite;
+    public TextureRegion getCurrentFrame() {
+        return currentFrame;
     }
 
-    private int getPrice() {
+    public Sprite getFrameSprite() {
+        return frameSprite;
+    }
+
+    public int getPrice() {
         return price;
     }
 
-    private int getGrowthStage() {
+    public int getGrowthStage() {
         return growthStage;
     }
 
-    public void setWatered() {
-        isWatered = true;
+    public void setWatered(boolean watered) {
+        isWatered = watered;
     }
+
     public boolean isDead() {
         return isDead;
     }
+
     public boolean isWatered() {
         return isWatered;
     }

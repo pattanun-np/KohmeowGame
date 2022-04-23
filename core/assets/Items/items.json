@@ -1,0 +1,77 @@
+{
+    "tools": [
+        {
+            "name": "Bucket",
+            "desc": "Bucket for watering plants",
+            "file_path": "Items/bucket.png"
+        },
+        {
+            "name": "Shovel",
+            "desc": "Shovel for digging",
+            "file_path": "Items/shovel.png"
+        },
+        {
+            "name": "Fertilizer",
+            "desc": "Fertilizer for growing plants",
+            "file_path": "Items/fertilizer.png"
+        },
+        {
+            "name": "Hoe",
+            "desc": "Hoe for growing plants",
+            "file_path": "Items/hoe.png"
+        }
+    ],
+    "plants_product": [
+        {
+            "name": "Potato",
+            "desc": "A potato",
+            "file_path": "Items/Potato.png",
+            "price": 40
+        },
+        {
+            "name": "Carrot",
+            "desc": "A carrot",
+            "file_path": "Items/Carrot.png",
+            "price": 10
+        },
+        {
+            "name":"Wheat",
+            "desc": "A wheat",
+            "file_path": "Items/Wheat.png",
+            "price": 5
+        },
+        {
+            "name":"Corn",
+            "desc": "A corn",
+            "file_path": "Items/Corn.png",
+            "price": 5
+        }
+    ],
+    "plants_seed":[
+        {
+            "name": "Potato Seed",
+            "desc": "A potato",
+            "file_path": "Items/PotatoSeed.png",
+            "price": 10
+        },
+        {
+            "name": "Carrot Seed",
+            "desc": "A carrot",
+            "file_path": "Items/CarrotSeed.png",
+            "price": 10
+        },
+        {
+            "name":"Wheat Seed",
+            "desc": "A wheat",
+            "file_path": "Items/WheatSeed.png",
+            "price": 5
+        },
+        {
+            "name":"Corn Seed",
+            "desc": "A corn",
+            "file_path": "Items/CornSeed.png",
+            "price": 5
+        }
+    ]
+    
+}

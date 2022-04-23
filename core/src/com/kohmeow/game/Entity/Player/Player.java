@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.kohmeow.game.utils.SoundPlayer;
+
 
 public class Player extends Sprite {
 
@@ -46,7 +46,7 @@ public class Player extends Sprite {
 
     public static Rectangle boundingBox;
 
-    private SoundPlayer soundPlayer;
+
 
     public enum State {
         IDLE,
@@ -149,7 +149,7 @@ public class Player extends Sprite {
     }
 
     public void update(float delta) {
-        System.out.println(String.format("Frame Time :%f Delta :%f", frameTime, delta));
+        // System.out.println(String.format("Frame Time :%f Delta :%f", frameTime, delta));
         if (state == State.WALKING){
             frameTime = (frameTime + delta) % 5;
            
@@ -239,13 +239,13 @@ public class Player extends Sprite {
         nextPosition.x = x;
         nextPosition.y = y;
 
-        System.out.println(x + " " + y);
+        // System.out.println(x + " " + y);
     }
 
     public void setDirection(Direction direction, float delta) {
 
         this.currentDirection = direction;
-        System.out.println("CurrentDirection : " + currentDirection);
+        // System.out.println("CurrentDirection : " + currentDirection);
         switch (currentDirection) {
             case WALKING_DOWN:
                 currentFrame = walkDown.getKeyFrame(frameTime);

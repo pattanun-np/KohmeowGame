@@ -2,7 +2,9 @@ package com.kohmeow.game.Controller;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector3;
+import com.kohmeow.game.KohMeowGame;
 import com.kohmeow.game.Entity.Plants.Crop;
 import com.kohmeow.game.Entity.Player.Player;
 import com.kohmeow.game.screen.GameScreen;
@@ -16,6 +18,7 @@ public class PlayerController implements InputProcessor {
     private boolean up;
     private boolean down;
     private boolean jump;
+    private boolean toggleInventory;
     private GameScreen screen;
     Vector3 tp;
 
@@ -28,6 +31,7 @@ public class PlayerController implements InputProcessor {
         up = false;
         down = false;
         jump = false;
+        toggleInventory = false;
     }
 
     @Override
@@ -40,46 +44,50 @@ public class PlayerController implements InputProcessor {
             this.down = true;
         if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D)
             this.right = true;
-        
 
-        if (keycode == Input.Keys.NUM_1) {
-            System.out.println("Select" + screen.getItems().get(0).getName());
-            screen.setSelectedItem(screen.getItems().get(0));
-        }
+        // if (keycode == Input.Keys.NUM_1) {
+        // System.out.println("Select" + screen.getItems().get(0).getName());
+        // screen.setSelectedItem(screen.getItems().get(0));
+        // }
 
-        if (keycode == Input.Keys.NUM_2) {
-            System.out.println("Select" + screen.getItems().get(0).getName());
-            screen.setSelectedItem(screen.getItems().get(1));
-        }
+        // if (keycode == Input.Keys.NUM_2) {
+        // System.out.println("Select" + screen.getItems().get(1).getName());
+        // screen.setSelectedItem(screen.getItems().get(1));
+        // }
 
-        if (keycode == Input.Keys.NUM_3) {
-            System.out.println("Select" + screen.getItems().get(0).getName());
-            screen.setSelectedItem(screen.getItems().get(2));
-        }
+        // if (keycode == Input.Keys.NUM_3) {
+        // System.out.println("Select" + screen.getItems().get(2).getName());
+        // screen.setSelectedItem(screen.getItems().get(2));
+        // }
 
-        if (keycode == Input.Keys.NUM_4) {
-            System.out.println("Select" + screen.getItems().get(0).getName());
-            screen.setSelectedItem(screen.getItems().get(3));
-        }
+        // if (keycode == Input.Keys.NUM_4) {
+        // System.out.println("Select" + screen.getItems().get(3).getName());
+        // screen.setSelectedItem(screen.getItems().get(3));
+        // }
 
-        if (keycode == Input.Keys.NUM_5) {
-            System.out.println("Select" + screen.getItems().get(0).getName());
-            screen.setSelectedItem(screen.getItems().get(4));
-        }
+        // if (keycode == Input.Keys.NUM_5) {
+        // System.out.println("Select" + screen.getItems().get(4).getName());
+        // screen.setSelectedItem(screen.getItems().get(4));
+        // }
 
-        if (keycode == Input.Keys.NUM_6) {
-            System.out.println("Select" + screen.getItems().get(0).getName());
-            screen.setSelectedItem(screen.getItems().get(5));
-        }
+        // if (keycode == Input.Keys.NUM_6) {
+        // System.out.println("Select" + screen.getItems().get(5).getName());
+        // screen.setSelectedItem(screen.getItems().get(5));
+        // }
 
-        if (keycode == Input.Keys.NUM_7) {
-            System.out.println("Select" + screen.getItems().get(0).getName());
-            screen.setSelectedItem(screen.getItems().get(6));
-        }
+        // if (keycode == Input.Keys.NUM_7) {
+        // System.out.println("Select" + screen.getItems().get(6).getName());
+        // screen.setSelectedItem(screen.getItems().get(6));
+        // }
 
-        if (keycode == Input.Keys.NUM_8) {
-            System.out.println("Select" + screen.getItems().get(0).getName());
-            screen.setSelectedItem(screen.getItems().get(7));
+        // if (keycode == Input.Keys.NUM_8) {
+        // System.out.println("Select" + screen.getItems().get(7).getName());
+        // screen.setSelectedItem(screen.getItems().get(7));
+        // }
+        if (keycode == Input.Keys.E) {
+            System.out.println("Toggle Inventory");
+            this.toggleInventory = true;
+
         }
         return true;
     }
@@ -94,7 +102,11 @@ public class PlayerController implements InputProcessor {
             this.down = false;
         if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D)
             this.right = false;
-        
+        if (keycode == Input.Keys.E) {
+            System.out.println("Toggle Inventory");
+            this.toggleInventory = false;
+        }
+
         return false;
     }
 
@@ -105,8 +117,31 @@ public class PlayerController implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        System.out.println("Touch Down At " + screenX + " " + screenY);
-        return true;
+
+        Vector3 coords = screen.getCam().unproject(tp.set(screenX, screenY, 0));
+
+        if (Math.abs(player.getPlayerCenterX() - coords.x) < 50
+                && Math.abs(player.getPlayerCenterY() - coords.y) < 50) {
+
+            TiledMapTileLayer ground = (TiledMapTileLayer) screen.getMap().getLayers().get("Ground");
+
+            TiledMapTileLayer.Cell cell = ground.getCell(Math.round(coords.x * KohMeowGame.UNIT_SCALE),
+                    Math.round(coords.y * KohMeowGame.UNIT_SCALE));
+
+            System.out.println(cell != null);
+            if (cell != null) {
+                System.out.println("Cell: " + cell.getTile().getId());
+                if (cell.getTile().getId() == 99) {
+                    crop = new Crop("Carrot", coords.x, coords.y);
+                    screen.addCrop(crop);
+
+                    screen.numCrops++;
+                }
+            }
+            return false;
+        }
+
+        return false;
     }
 
     @Override
@@ -121,21 +156,16 @@ public class PlayerController implements InputProcessor {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        System.out.println(String.format("Mouse: Pos (%d,%d)", screenX, screenY));
+        // System.out.println(String.format("Mouse: Pos (%d,%d)", screenX, screenY));
 
         return false;
     }
 
     @Override
     public boolean scrolled(float amount, float amount2) {
-        screen.intType += amount;
-        if (screen.intType > screen.getItems().size - 1)
-            screen.intType = 0;
-        if (screen.intType < 0)
-            screen.intType = screen.getItems().size - 1;
+        // System.out.println(String.format("Scroll: (%f,%f)", amount, amount2));
 
-        screen.setSelectedItem(screen.getItems().get(screen.intType));
-        return false;
+        return true;
     }
 
     public void update(float delta) {
@@ -143,9 +173,10 @@ public class PlayerController implements InputProcessor {
     }
 
     private void processInput(float delta) {
-        System.out.println(" Left: " + left + " Right: " + right + " Up: " + up + " Down: " + down);
-        System.out.println("State: " + player.getState());
-        System.out.println("Direction : " + player.getDirection());
+        // System.out.println(" Left: " + left + " Right: " + right + " Up: " + up + "
+        // Down: " + down);
+        // System.out.println("State: " + player.getState());
+        // System.out.println("Direction : " + player.getDirection());
         // System.out.println(String.format("Player: Pos
         // (%d,%d)",player.getX(),player.getY()));
         if (up) {
@@ -172,22 +203,22 @@ public class PlayerController implements InputProcessor {
             player.setState(Player.State.IDLE);
 
             if (player.getDirection() == Player.Direction.WALKING_UP && player.getState() == Player.State.IDLE) {
-                System.out.println("IDLE UP");
+                // System.out.println("IDLE UP");
                 player.setDirection(Player.Direction.UP, delta);
 
             } else if (player.getDirection() == Player.Direction.WALKING_DOWN
                     && player.getState() == Player.State.IDLE) {
-                System.out.println("IDLE DOWN");
+                // System.out.println("IDLE DOWN");
                 player.setDirection(Player.Direction.DOWN, delta);
 
             } else if (player.getDirection() == Player.Direction.WALKING_RIGHT
                     && player.getState() == Player.State.IDLE) {
-                System.out.println("IDLE RIGHT");
+                // System.out.println("IDLE RIGHT");
                 player.setDirection(Player.Direction.RIGHT, delta);
 
             } else if (player.getDirection() == Player.Direction.WALKING_LEFT
                     && player.getState() == Player.State.IDLE) {
-                System.out.println("IDLE LEFT");
+                // System.out.println("IDLE LEFT");
                 player.setDirection(Player.Direction.LEFT, delta);
             }
         }
