@@ -3,9 +3,9 @@ package com.kohmeow.game.utils;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector3;
-import com.kohmeow.game.crops.Crop;
+import com.kohmeow.game.Entity.Plants.Crop;
+import com.kohmeow.game.Entity.Player.Entity;
 import com.kohmeow.game.screen.GameScreen;
-import com.kohmeow.game.sprites.Entity;
 
 public class PlayerController implements InputProcessor {
 
@@ -15,6 +15,7 @@ public class PlayerController implements InputProcessor {
     private boolean right;
     private boolean up;
     private boolean down;
+    private boolean jump;
     private GameScreen screen;
     Vector3 tp;
 
@@ -26,6 +27,7 @@ public class PlayerController implements InputProcessor {
         right = false;
         up = false;
         down = false;
+        jump = false;
     }
 
     @Override
@@ -38,7 +40,48 @@ public class PlayerController implements InputProcessor {
             this.down = true;
         if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D)
             this.right = true;
+        if (keycode == Input.Keys.SPACE)
+            this.jump = true;
 
+        if (keycode == Input.Keys.NUM_1) {
+            System.out.println("Select" + screen.getItems().get(0).getName());
+            screen.setSelectedItem(screen.getItems().get(0));
+        }
+
+        if (keycode == Input.Keys.NUM_2) {
+            System.out.println("Select" + screen.getItems().get(0).getName());
+            screen.setSelectedItem(screen.getItems().get(1));
+        }
+
+        if (keycode == Input.Keys.NUM_3) {
+            System.out.println("Select" + screen.getItems().get(0).getName());
+            screen.setSelectedItem(screen.getItems().get(2));
+        }
+
+        if (keycode == Input.Keys.NUM_4) {
+            System.out.println("Select" + screen.getItems().get(0).getName());
+            screen.setSelectedItem(screen.getItems().get(3));
+        }
+
+        if (keycode == Input.Keys.NUM_5) {
+            System.out.println("Select" + screen.getItems().get(0).getName());
+            screen.setSelectedItem(screen.getItems().get(4));
+        }
+
+        if (keycode == Input.Keys.NUM_6) {
+            System.out.println("Select" + screen.getItems().get(0).getName());
+            screen.setSelectedItem(screen.getItems().get(5));
+        }
+
+        if (keycode == Input.Keys.NUM_7) {
+            System.out.println("Select" + screen.getItems().get(0).getName());
+            screen.setSelectedItem(screen.getItems().get(6));
+        }
+
+        if (keycode == Input.Keys.NUM_8) {
+            System.out.println("Select" + screen.getItems().get(0).getName());
+            screen.setSelectedItem(screen.getItems().get(7));
+        }
         return true;
     }
 
@@ -52,6 +95,8 @@ public class PlayerController implements InputProcessor {
             this.down = false;
         if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D)
             this.right = false;
+        if (keycode == Input.Keys.SPACE)
+            this.jump = false;
         return false;
     }
 
@@ -79,7 +124,7 @@ public class PlayerController implements InputProcessor {
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
         System.out.println(String.format("Mouse: Pos (%d,%d)", screenX, screenY));
-        
+
         return false;
     }
 
@@ -91,7 +136,7 @@ public class PlayerController implements InputProcessor {
         if (screen.intType < 0)
             screen.intType = screen.getItems().size - 1;
 
-        screen.setMouseCrop(screen.getItems().get(screen.intType));
+        screen.setSelectedItem(screen.getItems().get(screen.intType));
         return false;
     }
 
@@ -121,6 +166,9 @@ public class PlayerController implements InputProcessor {
             player.move(Entity.Direction.WALKING_LEFT, delta);
             player.setState(Entity.State.WALKING);
             player.setDirection(Entity.Direction.WALKING_LEFT, delta);
+        } else if (jump) {
+            player.move(Entity.Direction.JUMP, delta);
+            player.setState(Entity.State.IDLE);
 
         } else if (!up && !down && !left && !right) {
             player.setState(Entity.State.IDLE);

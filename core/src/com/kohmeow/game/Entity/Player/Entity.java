@@ -1,4 +1,4 @@
-package com.kohmeow.game.sprites;
+package com.kohmeow.game.Entity.Player;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -58,6 +58,7 @@ public class Entity extends Sprite {
         WALKING_RIGHT,
         WALKING_DOWN,
         WALKING_LEFT,
+        JUMP
 
     }
 
@@ -71,7 +72,7 @@ public class Entity extends Sprite {
 
         currentDirection = Direction.DOWN;
 
-        texture = new Texture("SpireSheet2.png");
+        texture = new Texture("Entity/Player/SpireSheet2.png");
 
         loadSprite();
         loadAnimations();
@@ -210,6 +211,10 @@ public class Entity extends Sprite {
                 break;
             case WALKING_RIGHT:
                 x += velocity.x;
+                break;
+            case JUMP:
+                
+                y += 5f;
                 break;
 
             default:

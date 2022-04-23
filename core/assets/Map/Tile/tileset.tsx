@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.8" tiledversion="1.8.4" name="tileset" tilewidth="32" tileheight="32" tilecount="1024" columns="32">
- <image source="Atlas/tileset.png" trans="ff00ff" width="1024" height="1024"/>
+ <image source="tileset.png" trans="ff00ff" width="1024" height="1024"/>
  <wangsets>
   <wangset name="Dirts" type="corner" tile="109">
    <wangcolor name="" color="#ff0000" tile="-1" probability="1"/>

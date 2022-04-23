@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -26,7 +27,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kohmeow.game.KohMeowGame;
-import com.kohmeow.game.sprites.Entity;
+import com.kohmeow.game.Entity.Player.Entity;
 import com.kohmeow.game.utils.Items;
 import com.kohmeow.game.utils.MapLoader;
 import com.kohmeow.game.utils.PlayerController;
@@ -72,9 +73,12 @@ public class GameScreen extends ScreenAdapter {
     private Texture box;
     private Texture border;
 
-    private Texture bucketTexture;
+    private Texture bucketTexture, cornTexture, carrotTexture, potatoTexture, artichokeTexture, gourdTexture, pepperTexture, hoeTexture, tomatoTexture, wheatTexture;
 
-    private Items bucket;
+    Texture emptyTexture;
+
+    private Items bucket, corn, carrot, potato,empty;
+
     private Music music;
     private TextureRegion mouseFrame;
     private Texture mouseCrop;
@@ -88,11 +92,11 @@ public class GameScreen extends ScreenAdapter {
 
         cam.setToOrtho(false, gameView.getWorldWidth(), gameView.getWorldHeight());
 
-        map = new TmxMapLoader().load("Base.tmx");
+        map = new TmxMapLoader().load("Map/Base.tmx");
         renderer = new OrthogonalTiledMapRenderer(map);
         renderer.setView(cam);
 
-        cam.zoom = .5f;
+        cam.zoom = .6f;
 
         mapWidth = map.getProperties().get("width", Integer.class) * 32;
         mapHeight = map.getProperties().get("height", Integer.class) * 32;
@@ -116,24 +120,46 @@ public class GameScreen extends ScreenAdapter {
         Gdx.input.setInputProcessor(inputMultiplexer);
         intType = 0;
 
-        box = new Texture("box.png");
-        border = new Texture("border.png");
-        bucketTexture = new Texture("bucket.png");
-        bucket = new Items(bucketTexture, Items.ItemType.TOOL, Items.Item.BUCKET);
+        Pixmap pixmap = new Pixmap(32, 32, Format.RGBA8888);
+        pixmap.setColor(0, 0, 0, 0);
+        pixmap.fill();
 
-        setMouseCrop(bucket);
-        music = KohMeowGame.manager.get("SongForKohMeow.mp3", Music.class);
+        box = new Texture("UI/box.png");
+        border = new Texture("UI/border.png");
+        bucketTexture = new Texture("Items/bucket.png");
+        cornTexture = new Texture("Items/Corn.png");
+        carrotTexture = new Texture("Items/Carrot.png");
+        potatoTexture = new Texture("Items/Potato.png");
+        emptyTexture = new Texture(pixmap,false);
+
+        bucket = new Items(bucketTexture, Items.ItemType.TOOL, Items.Item.BUCKET);
+        corn = new Items(cornTexture, Items.ItemType.SEED, Items.Item.CORN);
+        carrot = new Items(carrotTexture, Items.ItemType.SEED, Items.Item.CARROT);
+        potato = new Items(potatoTexture, Items.ItemType.SEED, Items.Item.POTATO);
+  
+
+        int capacity = 9;
+        items = new Array<Items>(capacity);
+
+        items.add(bucket);
+        items.add(corn);
+        items.add(carrot);
+        items.add(potato);
+        
+        setSelectedItem(potato);
+
+        music = KohMeowGame.manager.get("music/SongForKohMeow.mp3", Music.class);
         music.setLooping(true);
         music.setVolume(.1f);
         music.play();
 
     }
 
-    public void setMouseCrop(Items item) {
+    public void setSelectedItem(Items item) {
+        System.out.println("setSelectedItem"+item);
         mouseFrame = item.getTextureRegion();
         currentItem = item;
         currentType = item.getType();
-
     }
 
     @Override
@@ -144,22 +170,37 @@ public class GameScreen extends ScreenAdapter {
     public Array<Items> getItems() {
         return items;
     }
+
     public boolean checkCollision(Rectangle boundingBox, MapLayer objectLayer) {
         for (MapObject object : objectLayer.getObjects()) {
             if (object instanceof RectangleMapObject) {
                 Rectangle rectangle = ((RectangleMapObject) object).getRectangle();
-                if (boundingBox.overlaps(rectangle))
+                if (boundingBox.overlaps(rectangle)) {
+                    System.out.println("Collision");
+                    System.out.println(boundingBox.getX() + "," + boundingBox.getY());
+                    System.out.println(rectangle.getX() + "," + rectangle.getY());
+                    System.out.println("Check is player over stack: " + (boundingBox.getY() > rectangle.getY()));
+
                     return true;
+                }
             }
 
         }
         return false;
     }
 
-    public boolean isCollision(Rectangle boundingBox){
+    public int getTobarSize() {
+
+        return this.items.size;
+
+    }
+
+    public boolean isCollision(Rectangle boundingBox) {
         MapLayer objectLayer = map.getLayers().get("Collision");
+
         return checkCollision(boundingBox, objectLayer);
     }
+
     @Override
     public void render(float delta) {
 
@@ -169,6 +210,7 @@ public class GameScreen extends ScreenAdapter {
 
         cam.update();
         player.update(delta);
+        
 
         System.out.println(cam.position.x + " " + cam.position.y);
 
@@ -183,7 +225,6 @@ public class GameScreen extends ScreenAdapter {
         }
         if (!isCollision(Entity.getBoundingBox()))
             player.setCurrentToNext();
-
 
         renderer.render();
 
@@ -206,13 +247,13 @@ public class GameScreen extends ScreenAdapter {
                 game.batch.draw(items.get(i).getTextureRegion(),
                         (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
                         cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
-                if (items.get(i).getType() == Items.ItemType.SEED)
-                    font.draw(game.batch, String.format("%d", items.get(i).getNum()),
-                            (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2) - 6),
-                            cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 12);
+                if (items.get(i).getType() == Items.ItemType.SEED){}
+                    // font.draw(game.batch, String.format("%d", items.get(i).getNum()),
+                    // (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2) - 6),
+                    // cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 12);
                 if (items.get(i).getItem() == currentItem.getItem())
-                    game.batch.draw(border, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
-                            cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
+                        game.batch.draw(border, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
+                                cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
             }
         }
 
@@ -238,5 +279,6 @@ public class GameScreen extends ScreenAdapter {
         border.dispose();
         map.dispose();
         box.dispose();
+        music.dispose();
     }
 }

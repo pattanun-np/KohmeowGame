@@ -8,6 +8,7 @@ public class Items {
     private ItemType type;
     private Item item;
     private int num;
+    private String name;
     public enum ItemType{
         SEED,
         TOOL
@@ -25,6 +26,7 @@ public class Items {
         GOURD
     }
     public Items(Texture texture, ItemType type, Item item){
+        this.name = item.name();
         this.type = type;
         this.item = item;
         this.textureRegion = new TextureRegion(texture);
@@ -32,6 +34,7 @@ public class Items {
     }
     public Items(TextureRegion textureRegion, ItemType type, Item item){
         this.type = type;
+        this.name = item.name();
         this.item = item;
         this.textureRegion = new TextureRegion(textureRegion);
     }
@@ -46,6 +49,9 @@ public class Items {
 
     public Item getItem() {
         return item;
+    }
+    public String getName(){
+        return name;
     }
 
     public void add(){
