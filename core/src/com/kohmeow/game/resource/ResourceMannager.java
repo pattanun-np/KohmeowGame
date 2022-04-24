@@ -15,14 +15,15 @@ public class ResourceMannager {
     private JsonReader jsonReader;
 
     public Music musicTheme;
-    public Sound dirtSfx;
+    public Sound dirtSfx,waterSfx;
+
 
     public ResourceMannager() {
         assetManager = new AssetManager();
         jsonReader = new JsonReader();
 
-        assetManager.load("Items/Items.png", Texture.class);        
-        
+        assetManager.load("Items/Items.png", Texture.class);
+        assetManager.load("Entity/Plants/SpriteSheetVeg.png", Texture.class);
 
         assetManager.load("UI/Box.png", Texture.class);
         assetManager.load("UI/Crosshair.gif", Texture.class);
@@ -43,16 +44,24 @@ public class ResourceMannager {
         musicTheme = assetManager.get("music/Leaning On the Everlasting Arms - Zachariah Hickman.mp3", Music.class);
 
         dirtSfx = assetManager.get("Sound/dirt.mp3", Sound.class);
+        waterSfx = assetManager.get("Sound/Player/PouringWater.mp3", Sound.class);
     }
 
     public Texture getTexture(String fpath) {
         return assetManager.get(fpath, Texture.class);
 
     }
+
     public TextureRegion[][] getTextureRegion(String fpath) {
         TextureRegion[][] textureFrames = TextureRegion.split(getTexture(fpath), 32, 32);
 
-        return  textureFrames;
+        return textureFrames;
+    }
+
+    public TextureRegion[][] getTextureRegion(String fpath, int w, int h) {
+        TextureRegion[][] textureFrames = TextureRegion.split(getTexture(fpath), w, h);
+
+        return textureFrames;
     }
 
     public void dispose() {

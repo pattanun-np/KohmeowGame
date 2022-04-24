@@ -1,4 +1,4 @@
-package com.kohmeow.game.Inventory;
+package com.kohmeow.game.Items;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -43,10 +43,11 @@ public class Item {
         this.jsonReader = new JsonReader();
 
         this.type = type;
+        
+        this.nums = init_num;
 
         loadinfo(name, type);
 
-        this.nums = init_num;
     }
 
     private void loadinfo(String name, String type) {
@@ -92,6 +93,14 @@ public class Item {
 
     public String getType() {
         return type;
+    }
+
+    public void removeAmount(int amount) {
+        nums -= amount;
+    }
+
+    public void addAmount(int amount) {
+        nums += amount;
     }
 
     public Item getItem() {

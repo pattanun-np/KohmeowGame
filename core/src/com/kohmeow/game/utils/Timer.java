@@ -6,7 +6,7 @@ public class Timer {
 
     public final static float REALTIME = 1;
     public final static float DEMOTIME = 3600; // 1 real sec = 1 hour
-    public final static float GAMETIME = 360; // 10 real sec = 10
+    public final static float GAMETIME = 7200; // 10 real sec = 10
 
     // How long game runing
     private double secondsSinceStart;

@@ -140,6 +140,24 @@ public class PlayerController implements InputProcessor {
         if (Math.abs(Player.getPlayerCenterX() - coords.x) < 50
                 && Math.abs(Player.getPlayerCenterY() - coords.y) < 50) {
 
+            for (int i = 0; i < screen.numCrops; i++) {
+                if (screen.getCrops().get(i).getFrameSprite().getBoundingRectangle().contains(coords.x, coords.y)) {
+                    if (screen.currentItem.getName() == "WaterPot") {
+                        screen.getCrops().get(i).setWatered(true);
+                        rm.waterSfx.play();
+
+                    }
+                    if (screen.getCrops().get(i).getGrowthStage() == 3) {
+                        
+                        screen.getCrops().removeIndex(i);
+                        screen.numCrops--;
+                        return false;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+
             TiledMapTileLayer ground = (TiledMapTileLayer) screen.getMap().getLayers().get("Ground");
 
             TiledMapTileLayer.Cell cell = ground.getCell(Math.round(coords.x * KohMeowGame.UNIT_SCALE),
@@ -149,11 +167,13 @@ public class PlayerController implements InputProcessor {
             if (cell != null) {
                 // System.out.println("Cell: " + cell.getTile().getId());
                 if (cell.getTile().getId() == 99) {
-                    crop = new Crop("Carrot", coords.x, coords.y);
-                    screen.addCrop(crop);
+                    if (screen.currentItem.getType() == "plants_seed") {
+                        crop = new Crop(screen.currentItem.getName(), coords.x, coords.y);
+                        screen.addCrop(crop);
+                        screen.numCrops++;
 
-                    screen.numCrops++;
-                    rm.dirtSfx.play();
+                        rm.dirtSfx.play();
+                    }
 
                 }
             }
@@ -205,9 +225,9 @@ public class PlayerController implements InputProcessor {
 
     @Override
     public boolean scrolled(float amount, float amount2) {
-        System.out.println(String.format("Scroll: (%f,%f)", amount, amount2));
-        System.out.println("currentIndex: " + screen.getCurrentIndex());
-        System.out.println("tempIndex: " + tempIndex);
+        // System.out.println(String.format("Scroll: (%f,%f)", amount, amount2));
+        // System.out.println("currentIndex: " + screen.getCurrentIndex());
+        // System.out.println("tempIndex: " + tempIndex);
 
         if (amount2 == 1) {
 
@@ -240,10 +260,12 @@ public class PlayerController implements InputProcessor {
     }
 
     private void processInput(float delta) {
-        System.out.println(" Left: " + left + " Right: " + right + " Up: " + up + "Down: " + down);
-        System.out.println("State: " + player.getState());
-        System.out.println("Direction : " + player.getDirection());
-        // System.out.println(String.format("Player: Pos (%d,%d)", player.getX(), player.getY()));
+        // System.out.println(" Left: " + left + " Right: " + right + " Up: " + up +
+        // "Down: " + down);
+        // System.out.println("State: " + player.getState());
+        // System.out.println("Direction : " + player.getDirection());
+        // System.out.println(String.format("Player: Pos (%d,%d)", player.getX(),
+        // player.getY()));
         if (up) {
             player.move(Player.Direction.WALKING_UP, delta);
             player.setState(Player.State.WALKING);

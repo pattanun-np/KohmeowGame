@@ -33,7 +33,7 @@ import com.kohmeow.game.KohMeowGame;
 import com.kohmeow.game.Controller.PlayerController;
 import com.kohmeow.game.Entity.Plants.Crop;
 import com.kohmeow.game.Entity.Player.Player;
-import com.kohmeow.game.Inventory.Item;
+import com.kohmeow.game.Items.Item;
 import com.kohmeow.game.resource.ResourceMannager;
 import com.kohmeow.game.utils.Crosshair;
 import com.kohmeow.game.utils.GameTimeClock;
@@ -124,6 +124,8 @@ public class GameScreen extends ScreenAdapter {
     private String time;
     private ShapeRenderer shapeRenderer;
 
+    private Item wheat;
+
     public GameScreen(KohMeowGame game) {
 
         this.game = game;
@@ -182,14 +184,16 @@ public class GameScreen extends ScreenAdapter {
         shovel = new Item("Shovel", "tools");
 
         carrotSeed = new Item("CarrotSeed", "plants_seed", 20);
-        cornSeed = new Item("CornSeed", "plants_seed", 0);
-        wheatSeed = new Item("WheatSeed", "plants_seed", 0);
-        potatoSeed = new Item("PotatoSeed", "plants_seed", 0);
+        cornSeed = new Item("CornSeed", "plants_seed", 10);
+        wheatSeed = new Item("WheatSeed", "plants_seed", 30);
+        potatoSeed = new Item("PotatoSeed", "plants_seed", 10);
+
         carrot = new Item("Carrot", "plants_product", 0);
         corn = new Item("Corn", "plants_product", 0);
         potato = new Item("Potato", "plants_product", 0);
+        wheat = new Item("Wheat","plants_product", 0);
 
-        items = new Array<Item>(9);
+        items = new Array<Item>(10);
         items.insert(0, waterPot);
         items.insert(1, shovel);
         items.insert(2, carrotSeed);
@@ -199,6 +203,7 @@ public class GameScreen extends ScreenAdapter {
         items.insert(6, carrot);
         items.insert(7, corn);
         items.insert(8, potato);
+        items.insert(9, wheat);
 
         setSelectedItem(waterPot);
         setCurrentIndex(0);
@@ -316,9 +321,15 @@ public class GameScreen extends ScreenAdapter {
 
         for (int i = 0; i < numCrops; i++) {
 
+            if (crops.get(i).isWatered())
+                game.batch.setColor(Color.BROWN);
+
             game.batch.draw(textureFrames[0][1], crops.get(i).getFrameSprite().getX(),
                     crops.get(i).getFrameSprite().getY() - 6);
+            game.batch.setColor(Color.WHITE);
 
+            
+          
             game.batch.draw(crops.get(i).getCurrentFrame(), crops.get(i).getFrameSprite().getX(),
                     crops.get(i).getFrameSprite().getY());
 
@@ -327,12 +338,13 @@ public class GameScreen extends ScreenAdapter {
                 currentPlayerSprite.getY() + 64, 24, 24);
 
         // System.out.println("Select Item: " + currentItem.getName());
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 10; i++) {
 
             game.batch.draw(box, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
                     cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
             if (i < items.size) {
-                System.out.println(items.get(i).getName() + " " + items.get(i).getType() + " " + items.get(i).getNum());
+                // System.out.println(items.get(i).getName() + " " + items.get(i).getType() + "
+                // " + items.get(i).getNum());
                 game.batch.draw(items.get(i).getTextureRegion(), (cam.position.x + 32 * i) -
                         (cam.viewportWidth / 2 * (cam.zoom / 2)),
                         cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
@@ -429,6 +441,18 @@ public class GameScreen extends ScreenAdapter {
 
     public int getCurrentDays() {
         return currentDays;
+    }
+
+    public void addMoney(int price) {
+        money += price;
+
+    }
+
+    public void addProduct(Item item, int ,amount){
+        item.addAmount();
+    }
+    public void removeSeed(Item item) {
+        item.removeAmount(1);
     }
 
     @Override

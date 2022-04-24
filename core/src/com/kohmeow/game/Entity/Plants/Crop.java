@@ -19,6 +19,7 @@ public class Crop extends Sprite {
     private int age;
     private int daysNotWatered;
     private int price;
+    private String name;
     private boolean isDead;
     private boolean isWatered;
     private float centerX, centerY;
@@ -37,46 +38,49 @@ public class Crop extends Sprite {
     private Sprite frameSprite;
 
     public Crop(String name, float x, float y) {
+
+        this.rm = new ResourceMannager();
+
         this.jsonReader = new JsonReader();
 
         this.position = new Vector2(x, y);
         this.growthStage = 0;
         this.age = 0;
         this.isWatered = false;
-        
+        this.name = name;
 
         centerX = x - 16;
         centerY = y - 16;
-        texture = new Texture("Items/Plants2.png");
+        
+        cropInfo = jsonReader.parse(Gdx.files.internal("Items/Items.json"));
+        textureFrames = rm.getTextureRegion("Entity/Plants/SpriteSheetVeg.png", 32, 64);
 
-        textureFrames = TextureRegion.split(texture, 32, 64);
         frameSprite = new Sprite(textureFrames[0][0], 0, 0, 32, 32);
         frameSprite.setX(Math.round(centerX / 32) * 32);
         frameSprite.setY(Math.round(centerY / 32) * 32);
-
-        dirtFrame = textureFrames[5][2];
 
         loadinfo(name);
 
     }
 
     private void loadinfo(String name) {
-        cropFrames = new Array<TextureRegion>(5);
-
-
-        JsonValue cropInfo = jsonReader.parse(Gdx.files.internal("Items/Crop.json"));
-
-        info = cropInfo.get(name);
-
-        this.growthStageDuration = info.getInt("growthStageDuration");
-        this.price = info.getInt("price");
-
+        cropFrames = new Array<TextureRegion>(4);
        
 
-        for (int i = 0; i < 5; i++)
-            cropFrames.insert(i, textureFrames[i][0]);
-        currentFrame = cropFrames.get(0);
+       
+        JsonValue info = cropInfo.get("plants_seed");
 
+        growthStageDuration = info.get(name).getInt("growthStageDuration");
+
+
+        price = info.get(name).getInt("price");
+
+        int y = info.get(name).get("growImage").getInt("y");
+
+        for (int i = 0; i < 4; i++)
+            cropFrames.insert(i, textureFrames[y][i]);
+        currentFrame = cropFrames.get(0);
+        // System.out.println(String.format("%s:%d", name, growthStageDuration));
     }
 
     public void addDay() {
