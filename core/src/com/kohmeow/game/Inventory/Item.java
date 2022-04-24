@@ -10,12 +10,13 @@ import com.badlogic.gdx.utils.JsonValue;
 public class Item {
     private TextureRegion textureRegion;
 
-    private Item item;
     private String name;
     private String description;
     private Texture texture;
     private int price;
     private String type;
+
+    private int nums;
 
     private JsonValue itemInfo;
     private JsonReader jsonReader;
@@ -26,11 +27,26 @@ public class Item {
 
     public Item(String name, String type) {
         this.rm = new ResourceMannager();
+
+        this.jsonReader = new JsonReader();
+
+        this.type = type;
+
+        this.nums = 1;
+
+        loadinfo(name, type);
+    }
+
+    public Item(String name, String type, int init_num) {
+        this.rm = new ResourceMannager();
+
         this.jsonReader = new JsonReader();
 
         this.type = type;
 
         loadinfo(name, type);
+
+        this.nums = init_num;
     }
 
     private void loadinfo(String name, String type) {
@@ -80,6 +96,11 @@ public class Item {
 
     public Item getItem() {
         return this;
+    }
+
+    public int getNum() {
+        return this.nums;
+
     }
 
     public String getName() {

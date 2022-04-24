@@ -1,15 +1,20 @@
 package com.kohmeow.game.screen;
 
+
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -104,9 +109,16 @@ public class GameScreen extends ScreenAdapter {
 
     private int currentIndex;
 
+    private FreeTypeFontGenerator generator;
+    private FreeTypeFontParameter parameter;
+
     public GameScreen(KohMeowGame game) {
+
         this.game = game;
+        this.create();
         intType = 0;
+
+  
 
         cam = new OrthographicCamera();
         gameView = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), cam);
@@ -153,13 +165,13 @@ public class GameScreen extends ScreenAdapter {
         waterPot = new Item("WaterPot", "tools");
         shovel = new Item("Shovel", "tools");
 
-        carrotSeed = new Item("CarrotSeed", "plants_seed");
-        cornSeed = new Item("CornSeed", "plants_seed");
-        wheatSeed = new Item("WheatSeed", "plants_seed");
-        potatoSeed = new Item("PotatoSeed", "plants_seed");
-        carrot = new Item("Carrot", "plants_product");
-        corn = new Item("Corn", "plants_product");
-        potato = new Item("Potato", "plants_product");
+        carrotSeed = new Item("CarrotSeed", "plants_seed", 20);
+        cornSeed = new Item("CornSeed", "plants_seed", 0);
+        wheatSeed = new Item("WheatSeed", "plants_seed", 0);
+        potatoSeed = new Item("PotatoSeed", "plants_seed", 0);
+        carrot = new Item("Carrot", "plants_product", 0);
+        corn = new Item("Corn", "plants_product", 0);
+        potato = new Item("Potato", "plants_product", 0);
 
         items = new Array<Item>(9);
         items.insert(0, waterPot);
@@ -179,12 +191,25 @@ public class GameScreen extends ScreenAdapter {
 
         inputMultiplexer.addProcessor(controller);
         Gdx.input.setInputProcessor(inputMultiplexer);
-
+       
         music = rm.musicTheme;
         music.setLooping(true);
         music.setVolume(.5f);
         music.play();
+        
 
+    }
+
+    public void create(){
+        generator = new FreeTypeFontGenerator(Gdx.files.internal("font/PixelFJVerdana12pt.ttf"));
+
+        parameter = new FreeTypeFontParameter();
+        parameter.size = 5;
+        parameter.color = Color.BLACK;
+        parameter.borderWidth = 1;
+        parameter.borderColor = Color.WHITE;
+
+        font = generator.generateFont(parameter);
     }
 
     @Override
@@ -269,14 +294,15 @@ public class GameScreen extends ScreenAdapter {
             game.batch.draw(box, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
                     cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
             if (i < items.size) {
-                // System.out.println(items.get(i).getName()+ " "+items.get(i).getType());
+                System.out.println(items.get(i).getName()+ " "+ items.get(i).getType()+" "+ items.get(i).getNum());
                 game.batch.draw(items.get(i).getTextureRegion(), (cam.position.x + 32 * i) -
                         (cam.viewportWidth / 2 * (cam.zoom / 2)),
-                        cam.position.y -(cam.viewportHeight / 2 * cam.zoom));
-                // if (items.get(i).getType() == Items.ItemType.SEED)
-                // font.draw(game.batch, String.format("%d", items.get(i).getNum()),
-                // (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2) - 6),
-                // cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 12);
+                        cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
+
+                if (items.get(i).getType() == "plants_product" || items.get(i).getType() == "plants_seed")
+                    font.draw(game.batch, String.format("x%d", items.get(i).getNum()),
+                            (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2) - 6)+5,
+                            cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 12);
                 if (items.get(i).getItem() == currentItem.getItem()) {
                     game.batch.draw(border, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
                             cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
@@ -286,7 +312,7 @@ public class GameScreen extends ScreenAdapter {
 
         game.batch.draw(currentPlayerFrame, currentPlayerSprite.getX(), currentPlayerSprite.getY());
         game.batch.draw(currentItem.getTextureRegion(), currentPlayerSprite.getX() + 16,
-                currentPlayerSprite.getY() + 64 ,24,24);
+                currentPlayerSprite.getY() + 64, 24, 24);
 
         game.batch.end();
 
@@ -346,5 +372,6 @@ public class GameScreen extends ScreenAdapter {
         map.dispose();
         box.dispose();
         music.dispose();
+        generator.dispose();
     }
 }
