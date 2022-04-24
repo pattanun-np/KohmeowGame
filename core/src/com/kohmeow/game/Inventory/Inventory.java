@@ -4,7 +4,9 @@ import com.kohmeow.game.Inventory.Item;
 
 public class Inventory {
     
-    private static int NUM_SLOTS = 24;
+    private static int NUM_SLOTS = 27;
 
-    public Item[] items;
+    public Item[][] items;
+
+    
 }

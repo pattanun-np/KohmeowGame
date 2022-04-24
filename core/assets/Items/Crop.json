@@ -1,21 +1,21 @@
 {
     "Wheat": {
-        "GrowthStage": 3,
+        "GrowthStage": 4,
         "Price": 20,
         "growthStageDuration":2
     },
     "Carrot": {
-        "GrowthStage": 3,
+        "GrowthStage": 4,
         "Price": 20,
         "growthStageDuration":2
     },
     "Corn": {
-        "GrowthStage": 3,
+        "GrowthStage": 4,
         "Price": 20,
         "growthStageDuration":2
     },
     "Potato": {
-        "GrowthStage": 3,
+        "GrowthStage": 4,
         "Price": 20,
         "growthStageDuration":2
     }
