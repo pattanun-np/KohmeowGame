@@ -26,7 +26,7 @@ public class ResourceMannager {
 
         assetManager.load("UI/Box.png", Texture.class);
         assetManager.load("UI/Crosshair.gif", Texture.class);
-
+        assetManager.load("UI/info.png", Texture.class);
         assetManager.load("Items/tools/WaterPot.png", Texture.class);
 
         // assetManager.load("Items/grassPatch.png", Texture.class);
