@@ -1,8 +1,11 @@
 package com.kohmeow.game.Inventory;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.kohmeow.game.resource.ResourceMannager;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 
 public class Item {
     private TextureRegion textureRegion;
@@ -12,33 +15,78 @@ public class Item {
     private String description;
     private Texture texture;
     private int price;
-    
+    private String type;
 
-    public Item(ResourceMannager rm,String name, String desc, String type, String filepath){
-        this.name = name;
-        this.description = desc;
-        this.texture = rm.getTexture(filepath);
-        
+    private JsonValue itemInfo;
+    private JsonReader jsonReader;
+
+    private JsonValue info;
+
+    private ResourceMannager rm;
+
+    public Item(String name, String type) {
+        this.rm = new ResourceMannager();
+        this.jsonReader = new JsonReader();
+
+        this.type = type;
+
+        loadinfo(name, type);
     }
-    public Item(ResourceMannager rm,String name, String desc, String type, String filepath, int price){
+
+    private void loadinfo(String name, String type) {
+        JsonValue itemInfo = jsonReader.parse(Gdx.files.internal("Items/Items.json"));
+        JsonValue info = itemInfo.get(type);
         this.name = name;
-        this.description = desc;
-        this.price = price;
-        this.texture = rm.getTexture(filepath);
-        
+        TextureRegion[][] texture = rm.getTextureRegion("Items/Items.png");
+        // System.out.println(info.get(name).getString("file_path"));
+
+        if (type == "tools") {
+            int index_x = info.get(name).getInt("x");
+            int index_y = info.get(name).getInt("y");
+            this.description = info.get(name).getString("desc");
+            this.textureRegion = texture[index_y][index_x];
+
+        } else if (type == "plants_product") {
+            int index_x = info.get(name).getInt("x");
+            int index_y = info.get(name).getInt("y");
+            this.description = info.get(name).getString("desc");
+            this.price = info.get(name).getInt("price");
+            this.textureRegion = texture[index_y][index_x];
+
+        } else if (type == "plants_seed") {
+            int index_x = info.get(name).getInt("x");
+            int index_y = info.get(name).getInt("y");
+            this.description = info.get(name).getString("desc");
+            this.price = info.get(name).getInt("price");
+            this.textureRegion = texture[index_y][index_x];
+
+        }
+
+        // this.description = info.getString("description");
+
+    }
+
+    public Texture getTexture() {
+        return texture;
     }
 
     public TextureRegion getTextureRegion() {
         return textureRegion;
     }
 
-    public Item getItem() {
-        return item;
+    public String getType() {
+        return type;
     }
-    public String getName(){
+
+    public Item getItem() {
+        return this;
+    }
+
+    public String getName() {
         return name;
     }
-    public String getFullDesc(){
+
+    public String getFullDesc() {
         String ret = "";
 
         ret += description;

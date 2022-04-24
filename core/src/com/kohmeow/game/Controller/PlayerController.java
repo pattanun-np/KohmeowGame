@@ -2,12 +2,16 @@ package com.kohmeow.game.Controller;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Select;
 import com.kohmeow.game.KohMeowGame;
 import com.kohmeow.game.Entity.Plants.Crop;
 import com.kohmeow.game.Entity.Player.Player;
+import com.kohmeow.game.resource.ResourceMannager;
 import com.kohmeow.game.screen.GameScreen;
+import com.kohmeow.game.utils.Crosshair;
 
 public class PlayerController implements InputProcessor {
 
@@ -19,8 +23,13 @@ public class PlayerController implements InputProcessor {
     private boolean down;
     private boolean jump;
     private boolean toggleInventory;
+    private ResourceMannager rm;
     private GameScreen screen;
+    private int currentIndex;
+    private int tempIndex;
     Vector3 tp;
+
+    private Crosshair crosshair;
 
     public PlayerController(GameScreen screen, Player player) {
         this.player = player;
@@ -32,6 +41,10 @@ public class PlayerController implements InputProcessor {
         down = false;
         jump = false;
         toggleInventory = false;
+        currentIndex = screen.getCurrentIndex();
+        tempIndex = currentIndex;
+
+        rm = new ResourceMannager();
     }
 
     @Override
@@ -45,45 +58,49 @@ public class PlayerController implements InputProcessor {
         if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D)
             this.right = true;
 
-        // if (keycode == Input.Keys.NUM_1) {
-        // System.out.println("Select" + screen.getItems().get(0).getName());
-        // screen.setSelectedItem(screen.getItems().get(0));
-        // }
+        if (keycode == Input.Keys.NUM_1) {
+            System.out.println("Select" + screen.getItems().get(0).getName());
+            screen.setSelectedItem(screen.getItems().get(0));
+        }
 
-        // if (keycode == Input.Keys.NUM_2) {
-        // System.out.println("Select" + screen.getItems().get(1).getName());
-        // screen.setSelectedItem(screen.getItems().get(1));
-        // }
+        if (keycode == Input.Keys.NUM_2) {
+            System.out.println("Select" + screen.getItems().get(1).getName());
+            screen.setSelectedItem(screen.getItems().get(1));
+        }
 
-        // if (keycode == Input.Keys.NUM_3) {
-        // System.out.println("Select" + screen.getItems().get(2).getName());
-        // screen.setSelectedItem(screen.getItems().get(2));
-        // }
+        if (keycode == Input.Keys.NUM_3) {
+            System.out.println("Select" + screen.getItems().get(2).getName());
+            screen.setSelectedItem(screen.getItems().get(2));
+        }
 
-        // if (keycode == Input.Keys.NUM_4) {
-        // System.out.println("Select" + screen.getItems().get(3).getName());
-        // screen.setSelectedItem(screen.getItems().get(3));
-        // }
+        if (keycode == Input.Keys.NUM_4) {
+            System.out.println("Select" + screen.getItems().get(3).getName());
+            screen.setSelectedItem(screen.getItems().get(3));
+        }
 
-        // if (keycode == Input.Keys.NUM_5) {
-        // System.out.println("Select" + screen.getItems().get(4).getName());
-        // screen.setSelectedItem(screen.getItems().get(4));
-        // }
+        if (keycode == Input.Keys.NUM_5) {
+            System.out.println("Select" + screen.getItems().get(4).getName());
+            screen.setSelectedItem(screen.getItems().get(4));
+        }
 
-        // if (keycode == Input.Keys.NUM_6) {
-        // System.out.println("Select" + screen.getItems().get(5).getName());
-        // screen.setSelectedItem(screen.getItems().get(5));
-        // }
+        if (keycode == Input.Keys.NUM_6) {
+            System.out.println("Select" + screen.getItems().get(5).getName());
+            screen.setSelectedItem(screen.getItems().get(5));
+        }
 
-        // if (keycode == Input.Keys.NUM_7) {
-        // System.out.println("Select" + screen.getItems().get(6).getName());
-        // screen.setSelectedItem(screen.getItems().get(6));
-        // }
+        if (keycode == Input.Keys.NUM_7) {
+            System.out.println("Select" + screen.getItems().get(6).getName());
+            screen.setSelectedItem(screen.getItems().get(6));
+        }
+        if (keycode == Input.Keys.NUM_8) {
+            System.out.println("Select" + screen.getItems().get(7).getName());
+            screen.setSelectedItem(screen.getItems().get(7));
+        }
+        if (keycode == Input.Keys.NUM_9) {
+            System.out.println("Select" + screen.getItems().get(8).getName());
+            screen.setSelectedItem(screen.getItems().get(8));
+        }
 
-        // if (keycode == Input.Keys.NUM_8) {
-        // System.out.println("Select" + screen.getItems().get(7).getName());
-        // screen.setSelectedItem(screen.getItems().get(7));
-        // }
         if (keycode == Input.Keys.E) {
             System.out.println("Toggle Inventory");
             this.toggleInventory = true;
@@ -120,22 +137,24 @@ public class PlayerController implements InputProcessor {
 
         Vector3 coords = screen.getCam().unproject(tp.set(screenX, screenY, 0));
 
-        if (Math.abs(player.getPlayerCenterX() - coords.x) < 50
-                && Math.abs(player.getPlayerCenterY() - coords.y) < 50) {
+        if (Math.abs(Player.getPlayerCenterX() - coords.x) < 50
+                && Math.abs(Player.getPlayerCenterY() - coords.y) < 50) {
 
             TiledMapTileLayer ground = (TiledMapTileLayer) screen.getMap().getLayers().get("Ground");
 
             TiledMapTileLayer.Cell cell = ground.getCell(Math.round(coords.x * KohMeowGame.UNIT_SCALE),
                     Math.round(coords.y * KohMeowGame.UNIT_SCALE));
 
-            System.out.println(cell != null);
+            // System.out.println(cell != null);
             if (cell != null) {
-                System.out.println("Cell: " + cell.getTile().getId());
+                // System.out.println("Cell: " + cell.getTile().getId());
                 if (cell.getTile().getId() == 99) {
                     crop = new Crop("Carrot", coords.x, coords.y);
                     screen.addCrop(crop);
 
                     screen.numCrops++;
+                    rm.dirtSfx.play();
+
                 }
             }
             return false;
@@ -156,16 +175,64 @@ public class PlayerController implements InputProcessor {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        // System.out.println(String.format("Mouse: Pos (%d,%d)", screenX, screenY));
+        // Vector3 coords = screen.getCam().unproject(tp.set(screenX, screenY, 0));
+
+        // if (Math.abs(Player.getPlayerCenterX() - coords.x) < 50
+        // && Math.abs(Player.getPlayerCenterY() - coords.y) < 50) {
+
+        // TiledMapTileLayer ground = (TiledMapTileLayer)
+        // screen.getMap().getLayers().get("Ground");
+
+        // TiledMapTileLayer.Cell cell = ground.getCell(Math.round(coords.x *
+        // KohMeowGame.UNIT_SCALE),
+        // Math.round(coords.y * KohMeowGame.UNIT_SCALE));
+
+        // System.out.println(cell != null);
+        // if (cell != null) {
+        // System.out.println("Cell: " + cell.getTile().getId());
+        // if (cell.getTile().getId() == 99) {
+        // crosshair = new Crosshair(coords.x, coords.y);
+        // screen.addCrosshiar(crosshair);
+        // screen.numCrosshair++;
+
+        // }
+        // }
+        // return false;
+        // }
 
         return false;
     }
 
     @Override
     public boolean scrolled(float amount, float amount2) {
-        // System.out.println(String.format("Scroll: (%f,%f)", amount, amount2));
+        System.out.println(String.format("Scroll: (%f,%f)", amount, amount2));
+        System.out.println("currentIndex: " + screen.getCurrentIndex());
+        System.out.println("tempIndex: " + tempIndex);
 
-        return true;
+        if (amount2 == 1) {
+
+            if (tempIndex < 8) {
+                tempIndex += 1;
+            } else {
+                tempIndex = 0;
+            }
+
+        } else if (amount2 == -1) {
+            if (tempIndex > 0) {
+                tempIndex -= 1;
+            } else {
+                tempIndex = 8;
+            }
+
+        }
+
+        currentIndex = tempIndex;
+
+        screen.setCurrentIndex(currentIndex);
+        screen.setSelectedItem(screen.getItems().get(currentIndex));
+        System.out.println("Select: " + screen.getItems().get(currentIndex).getName());
+
+        return false;
     }
 
     public void update(float delta) {
@@ -173,12 +240,10 @@ public class PlayerController implements InputProcessor {
     }
 
     private void processInput(float delta) {
-        // System.out.println(" Left: " + left + " Right: " + right + " Up: " + up + "
-        // Down: " + down);
-        // System.out.println("State: " + player.getState());
-        // System.out.println("Direction : " + player.getDirection());
-        // System.out.println(String.format("Player: Pos
-        // (%d,%d)",player.getX(),player.getY()));
+        System.out.println(" Left: " + left + " Right: " + right + " Up: " + up + "Down: " + down);
+        System.out.println("State: " + player.getState());
+        System.out.println("Direction : " + player.getDirection());
+        // System.out.println(String.format("Player: Pos (%d,%d)", player.getX(), player.getY()));
         if (up) {
             player.move(Player.Direction.WALKING_UP, delta);
             player.setState(Player.State.WALKING);
