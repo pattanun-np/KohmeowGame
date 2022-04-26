@@ -2,16 +2,21 @@ package com.kohmeow.game.Controller;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Select;
+
 import com.kohmeow.game.KohMeowGame;
 import com.kohmeow.game.Entity.Plants.Crop;
+import com.kohmeow.game.Entity.Plants.Patch;
 import com.kohmeow.game.Entity.Player.Player;
 import com.kohmeow.game.resource.ResourceMannager;
 import com.kohmeow.game.screen.GameScreen;
 import com.kohmeow.game.utils.Crosshair;
+import com.kohmeow.game.utils.SaveController;
 
 public class PlayerController implements InputProcessor {
 
@@ -27,9 +32,12 @@ public class PlayerController implements InputProcessor {
     private GameScreen screen;
     private int currentIndex;
     private int tempIndex;
-    Vector3 tp;
-
+    private SaveController SaveController;
+    private Vector3 tp;
     private Crosshair crosshair;
+    private Patch patch;
+    private TiledMapTileLayer plants_zone;
+    private boolean isPatch;
 
     public PlayerController(GameScreen screen, Player player) {
         this.player = player;
@@ -45,6 +53,11 @@ public class PlayerController implements InputProcessor {
         tempIndex = currentIndex;
 
         rm = new ResourceMannager();
+
+        SaveController = new SaveController();
+
+        plants_zone = (TiledMapTileLayer) screen.getMap().getLayers().get("Plants");
+
     }
 
     @Override
@@ -129,58 +142,239 @@ public class PlayerController implements InputProcessor {
 
     @Override
     public boolean keyTyped(char character) {
-        return false;
+        switch (character) {
+            case 'S':
+                screen.GameSave();
+                return true;
+            default:
+                return false;
+
+        }
+
+    }
+
+    /**
+     * 
+     * @param coords
+     * @return isPatch is click area is patch;
+     */
+    public boolean isClickOnPatch(Vector3 coords) {
+        Patch Patch = null;
+        for (int i = 0; i < screen.numPatch; i++) {
+            Patch = screen.patchs.get(i).contains(coords.x, coords.y);
+
+        }
+
+        if (Patch != null) {
+            System.out.println("Click on patch");
+            return true;
+        } else {
+            System.out.println("Click on ground");
+            return false;
+        }
+
+    }
+
+    /**
+     * 
+     * @param coords
+     */
+    public void createPatch(Vector3 coords) {
+
+        patch = new Patch(coords.x, coords.y);
+        screen.addPatch(patch);
+        rm.dirtSfx.play();
+
+    }
+
+    /**
+     * @param coords
+     */
+    public void removePatch(Vector3 coords) {
+        System.out.println("Remove Patch");
+        screen.removePatch(IndexOfPatch(coords));
+        rm.dirtSfx.play();
+    }
+
+    /**
+     * 
+     * @param coords
+     * @return
+     */
+    public Patch getPatch(Vector3 coords) {
+        for (int i = 0; i < screen.numPatch; i++) {
+            patch = screen.patchs.get(i).contains(coords.x, coords.y);
+        }
+        return patch;
+
+    }
+
+    public int IndexOfPatch(Vector3 coords) {
+        for (int i = 0; i < screen.numPatch; i++) {
+            patch = screen.patchs.get(i).contains(coords.x, coords.y);
+            if (patch != null) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * @params coords Verctor3
+     *
+     */
+    public void waterPatch(Vector3 coords) {
+        Patch waterPatch = getPatch(coords);
+        if (waterPatch != null) {
+            if (!patch.isWatered()) {
+                patch.setWatered();
+                rm.waterSfx.play();
+
+            }
+        }
+
+    }
+
+    public boolean isEmptyPatch(Vector3 coords) {
+
+        if (isClickOnPatch(coords)) {
+            Patch checkPatch = getPatch(coords);
+
+            return checkPatch.IsEmpty();
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 
+     * @param coords
+     */
+    public void plant(String name, Vector3 coords) {
+
+        Crop crop = new Crop(name, coords.x, coords.y);
+        screen.addCrop(crop);
+
+    }
+
+    /**
+     * 
+     * @param coords
+     * @return
+     */
+    public boolean IsPlantsabled(Vector3 coords) {
+        TiledMapTileLayer ground = (TiledMapTileLayer) screen.getMap().getLayers().get("Ground");
+
+        TiledMapTileLayer.Cell cell = ground.getCell(Math.round(coords.x * KohMeowGame.UNIT_SCALE),
+                Math.round(coords.y * KohMeowGame.UNIT_SCALE));
+        if (cell != null) {
+            // System.out.println("Cell: " + cell.getTile().getId());
+            if (cell.getTile().getId() == 99) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 
         Vector3 coords = screen.getCam().unproject(tp.set(screenX, screenY, 0));
+        String currentItemType = screen.currentItem.getType();
+        String currentItem = screen.currentItem.getName();
 
-        if (Math.abs(Player.getPlayerCenterX() - coords.x) < 50
-                && Math.abs(Player.getPlayerCenterY() - coords.y) < 50) {
+        System.out.println(currentItemType);
 
-            for (int i = 0; i < screen.numCrops; i++) {
-                if (screen.getCrops().get(i).getFrameSprite().getBoundingRectangle().contains(coords.x, coords.y)) {
-                    if (screen.currentItem.getName() == "WaterPot") {
-                        screen.getCrops().get(i).setWatered(true);
-                        rm.waterSfx.play();
+        if (Math.abs(Player.getPlayerCenterX() - coords.x) < 100
+                && Math.abs(Player.getPlayerCenterY() - coords.y) < 100) {
 
-                    }
-                    if (screen.getCrops().get(i).getGrowthStage() == 3) {
-                        
-                        screen.getCrops().removeIndex(i);
-                        screen.numCrops--;
-                        return false;
-                    } else {
-                        return false;
-                    }
-                }
-            }
+            if (button == Input.Buttons.LEFT) {
+                switch (currentItemType) {
+                    case "plants_seed":
+                        if (isClickOnPatch(coords)) {
+                            if (!isEmptyPatch(coords))
+                                System.out.println("Cannot plant on same patch");
+                            else if (isEmptyPatch(coords)) {
+                                plant(currentItem, coords);
+                            }
+                        }
 
-            TiledMapTileLayer ground = (TiledMapTileLayer) screen.getMap().getLayers().get("Ground");
+                        break;
+                    case "tools":
+                        if (currentItem.equals("WaterPot")) {
+                            waterPatch(coords);
+                        }
+                        if (currentItem.equals("Shovel")) {
+                            if (IsPlantsabled(coords) && !isClickOnPatch(coords)) {
+                                createPatch(coords);
+                            }
 
-            TiledMapTileLayer.Cell cell = ground.getCell(Math.round(coords.x * KohMeowGame.UNIT_SCALE),
-                    Math.round(coords.y * KohMeowGame.UNIT_SCALE));
+                        }
+                        break;
 
-            // System.out.println(cell != null);
-            if (cell != null) {
-                // System.out.println("Cell: " + cell.getTile().getId());
-                if (cell.getTile().getId() == 99) {
-                    if (screen.currentItem.getType() == "plants_seed") {
-                        crop = new Crop(screen.currentItem.getName(), coords.x, coords.y);
-                        screen.addCrop(crop);
-                        screen.numCrops++;
-
-                        rm.dirtSfx.play();
-                    }
+                    default:
+                        break;
 
                 }
+                return true;
             }
-            return false;
+            if (button == Input.Buttons.RIGHT) {
+                switch (currentItem) {
+                    case "Shovel":
+                        if (isClickOnPatch(coords)) {
+                            if (isEmptyPatch(coords)) {
+                                if (screen.numPatch > 0) {
+                                    removePatch(coords);
+                                    return true;
+                                }
+                                return false;
+                            }
+                        }
+                        break;
+
+                    default:
+                        return false;
+
+                }
+
+            }
         }
+        // for (int i = 0; i < screen.numCrops; i++) {
+        // if
+        // (screen.getCrops().get(i).getFrameSprite().getBoundingRectangle().contains(coords.x,
+        // coords.y)) {
+        // if (screen.currentItem.getName() == "WaterPot") {
+        // if (screen.patchs.get(j).isWatered()) {
+        // screen.getCrops().get(i).setWatered(true);
+        // // rm.waterSfx.play();
+        // }
+
+        // }
+        // if (screen.getCrops().get(i).getGrowthStage() == 3) {
+
+        // screen.getCrops().removeIndex(i);
+
+        // screen.addMoney(2);
+
+        // screen.numCrops--;
+
+        // return false;
+        // }
+
+        // } else {
+        // return false;
+        // }
+        // }
+
+        // System.out.println(tileSet.putTile(id, tile););
+
+        // System.out.println(cell != null);
 
         return false;
+
     }
 
     @Override

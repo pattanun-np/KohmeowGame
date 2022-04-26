@@ -23,18 +23,19 @@ public class ResourceMannager {
         jsonReader = new JsonReader();
 
         assetManager.load("Items/Items.png", Texture.class);
+        assetManager.load("Entity/DirtPatch/DirtPatch.png",Texture.class);
         assetManager.load("Entity/Plants/SpriteSheetVeg.png", Texture.class);
 
         assetManager.load("UI/Box.png", Texture.class);
         assetManager.load("UI/Crosshair.gif", Texture.class);
         assetManager.load("UI/info.png", Texture.class);
-        assetManager.load("Items/tools/WaterPot.png", Texture.class);
+
 
         // assetManager.load("Items/grassPatch.png", Texture.class);
 
-        assetManager.load("Sound/Player/WalkOnGrass.mp3", Sound.class);
-        assetManager.load("Sound/Player/PouringWater.mp3", Sound.class);
-        assetManager.load("Sound/dirt.mp3", Sound.class);
+        // assetManager.load("Sound/Player/WalkOnGrass.mp3", Sound.class);
+        assetManager.load("Sound/sfx/watering.mp3", Sound.class);
+        assetManager.load("Sound/sfx/dirt.mp3", Sound.class);
 
         assetManager.load("music/Leaning On the Everlasting Arms - Zachariah Hickman.mp3", Music.class);
         // manager.load("font/small_letters_font.fnt",BitmapFont.class);
@@ -43,8 +44,8 @@ public class ResourceMannager {
 
         musicTheme = assetManager.get("music/Leaning On the Everlasting Arms - Zachariah Hickman.mp3", Music.class);
 
-        dirtSfx = assetManager.get("Sound/dirt.mp3", Sound.class);
-        waterSfx = assetManager.get("Sound/Player/PouringWater.mp3", Sound.class);
+        dirtSfx = assetManager.get("Sound/sfx/dirt.mp3", Sound.class);
+        waterSfx = assetManager.get("Sound/sfx/watering.mp3", Sound.class);
     }
 
     public Texture getTexture(String fpath) {

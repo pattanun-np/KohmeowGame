@@ -32,13 +32,14 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kohmeow.game.KohMeowGame;
 import com.kohmeow.game.Controller.PlayerController;
 import com.kohmeow.game.Entity.Plants.Crop;
+import com.kohmeow.game.Entity.Plants.Patch;
 import com.kohmeow.game.Entity.Player.Player;
 import com.kohmeow.game.Items.Item;
 import com.kohmeow.game.resource.ResourceMannager;
 import com.kohmeow.game.utils.Crosshair;
 import com.kohmeow.game.utils.GameTimeClock;
 import com.kohmeow.game.utils.MapLoader;
-
+import com.kohmeow.game.utils.SaveController;
 import com.kohmeow.game.utils.Timer;
 
 public class GameScreen extends ScreenAdapter {
@@ -57,11 +58,8 @@ public class GameScreen extends ScreenAdapter {
     private int mapHeight;
     private TextureRegion[][] textureFrames;
     private TextureRegion[][] textureFrames2;
-    private MapObject object;
 
     private Viewport viewport;
-
-    private Viewport infoport;
 
     // Player
     private Player player;
@@ -79,10 +77,13 @@ public class GameScreen extends ScreenAdapter {
     private Texture info;
 
     public int numCrops;
+    public int numPatch;
+
     public int intType;
 
     private Music music;
     public Array<Crop> crops;
+    public Array<Patch> patchs;
 
     private Array<Item> items;
     private Texture mouseCrop;
@@ -119,6 +120,7 @@ public class GameScreen extends ScreenAdapter {
     private FreeTypeFontGenerator generator;
     private FreeTypeFontParameter parameter;
     private FreeTypeFontParameter parameter2;
+    private FreeTypeFontParameter parameter3;
 
     private BitmapFont font_info;
     private String time;
@@ -126,16 +128,23 @@ public class GameScreen extends ScreenAdapter {
 
     private Item wheat;
 
+    private SaveController SaveController;
+
+    private BitmapFont font_name;
+
     public GameScreen(KohMeowGame game) {
 
         this.game = game;
         this.create();
-        intType = 0;
 
+        intType = 0;
+        numPatch = 0;
         totalDays = 30;
         currentDays = 0;
         daysLeft = 30;
         money = 1000;
+
+        SaveController = new SaveController();
 
         cam = new OrthographicCamera();
         gameView = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), cam);
@@ -170,6 +179,7 @@ public class GameScreen extends ScreenAdapter {
         textureFrames2 = TextureRegion.split(new Texture("UI/Crosshair2.png"), 32, 32);
 
         crops = new Array<Crop>();
+        patchs = new Array<Patch>();
 
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new OrthographicCamera());
 
@@ -191,7 +201,7 @@ public class GameScreen extends ScreenAdapter {
         carrot = new Item("Carrot", "plants_product", 0);
         corn = new Item("Corn", "plants_product", 0);
         potato = new Item("Potato", "plants_product", 0);
-        wheat = new Item("Wheat","plants_product", 0);
+        wheat = new Item("Wheat", "plants_product", 0);
 
         items = new Array<Item>(10);
         items.insert(0, waterPot);
@@ -215,7 +225,7 @@ public class GameScreen extends ScreenAdapter {
 
         music = rm.musicTheme;
         music.setLooping(true);
-        music.setVolume(.5f);
+        music.setVolume(.2f);
         music.play();
 
     }
@@ -236,8 +246,15 @@ public class GameScreen extends ScreenAdapter {
         parameter2.borderStraight = false;
         parameter2.borderColor = Color.BLACK;
 
+        parameter3 = new FreeTypeFontParameter();
+        parameter3.size = 5;
+        parameter3.color = Color.WHITE;
+        parameter3.borderWidth = 1;
+        parameter3.borderColor = Color.BLACK;
+
         font = generator.generateFont(parameter);
         font_info = generator.generateFont(parameter2);
+        font_name = generator.generateFont(parameter3);
     }
 
     @Override
@@ -310,6 +327,8 @@ public class GameScreen extends ScreenAdapter {
         if (timer.getDaysPast() != currentDays) {
             for (Crop crops : crops)
                 crops.addDay();
+            for (Patch patchs : patchs)
+                patchs.addDay();
             currentDays = timer.getDaysPast();
             daysLeft--;
             System.out.println(String.format("Day left %d ", daysLeft));
@@ -319,21 +338,27 @@ public class GameScreen extends ScreenAdapter {
 
         game.batch.begin();
 
-        for (int i = 0; i < numCrops; i++) {
-
-            if (crops.get(i).isWatered())
+        for (int j = 0; j < numPatch; j++) {
+            if (patchs.get(j).isWatered()) {
                 game.batch.setColor(Color.BROWN);
-
-            game.batch.draw(textureFrames[0][1], crops.get(i).getFrameSprite().getX(),
-                    crops.get(i).getFrameSprite().getY() - 6);
+            }
+            game.batch.draw(patchs.get(j).getCurrentFrame(), patchs.get(j).getFrameSprite().getX(),
+                    patchs.get(j).getFrameSprite().getY() - 6);
             game.batch.setColor(Color.WHITE);
 
-            
-          
+        }
+
+        for (int i = 0; i < numCrops; i++) {
+
             game.batch.draw(crops.get(i).getCurrentFrame(), crops.get(i).getFrameSprite().getX(),
                     crops.get(i).getFrameSprite().getY());
 
         }
+
+        // Draw Item On Player
+        font_name.draw(game.batch, String.format("%s", currentItem.getName()),
+                currentPlayerSprite.getX() + 16,
+                currentPlayerSprite.getY() + 96);
         game.batch.draw(currentItem.getTextureRegion(), currentPlayerSprite.getX() + 16,
                 currentPlayerSprite.getY() + 64, 24, 24);
 
@@ -341,21 +366,21 @@ public class GameScreen extends ScreenAdapter {
         for (int i = 0; i < 10; i++) {
 
             game.batch.draw(box, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
-                    cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
+                    cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 10);
             if (i < items.size) {
                 // System.out.println(items.get(i).getName() + " " + items.get(i).getType() + "
                 // " + items.get(i).getNum());
                 game.batch.draw(items.get(i).getTextureRegion(), (cam.position.x + 32 * i) -
                         (cam.viewportWidth / 2 * (cam.zoom / 2)),
-                        cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
+                        cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 10);
 
                 if (items.get(i).getType() == "plants_product" || items.get(i).getType() == "plants_seed")
                     font.draw(game.batch, String.format("x%d", items.get(i).getNum()),
                             (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2) - 6) + 5,
-                            cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 12);
+                            cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 23);
                 if (items.get(i).getItem() == currentItem.getItem()) {
                     game.batch.draw(border, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
-                            cam.position.y - (cam.viewportHeight / 2 * cam.zoom));
+                            cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 10);
                 }
             }
         }
@@ -373,9 +398,18 @@ public class GameScreen extends ScreenAdapter {
         font_info.draw(game.batch, String.format("Time: %s", time),
                 (cam.position.x) - (cam.viewportWidth / 4) + 115,
                 (cam.position.y) + 135);
-        game.batch.draw(currentPlayerFrame, currentPlayerSprite.getX(), currentPlayerSprite.getY());
 
+        // Draw Player
+        
+
+        game.batch.draw(currentPlayerFrame, currentPlayerSprite.getX(), currentPlayerSprite.getY());
+        
         game.batch.end();
+
+
+       
+
+
         shapeRenderer.setProjectionMatrix(cam.combined);
         Gdx.gl20.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -427,8 +461,19 @@ public class GameScreen extends ScreenAdapter {
         return map;
     }
 
-    public void addCrop(com.kohmeow.game.Entity.Plants.Crop crop) {
+    public void addCrop(Crop crop) {
         crops.add(crop);
+        numCrops++;
+    }
+
+    public void addPatch(Patch patch) {
+        patchs.add(patch);
+        numPatch++;
+    }
+
+    public void removePatch(int index) {
+        patchs.removeIndex(index);
+        numPatch--;
     }
 
     public void addCrosshiar(com.kohmeow.game.utils.Crosshair crosshair) {
@@ -448,11 +493,17 @@ public class GameScreen extends ScreenAdapter {
 
     }
 
-    public void addProduct(Item item, int ,amount){
-        item.addAmount();
+    public void addProduct(Item item, int amount) {
+        // item.addAmount();
     }
+
     public void removeSeed(Item item) {
         item.removeAmount(1);
+    }
+
+    public void GameSave() {
+        SaveController.saveGame(money, crops);
+
     }
 
     @Override
@@ -462,5 +513,9 @@ public class GameScreen extends ScreenAdapter {
         box.dispose();
         music.dispose();
         generator.dispose();
+        font_name.dispose();
+        font.dispose();
+        font_info.dispose();
+
     }
 }

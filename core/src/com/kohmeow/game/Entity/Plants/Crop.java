@@ -36,6 +36,7 @@ public class Crop extends Sprite {
     private JsonReader jsonReader;
     private JsonValue info;
     private Sprite frameSprite;
+    private int return_amount;
 
     public Crop(String name, float x, float y) {
 
@@ -46,6 +47,7 @@ public class Crop extends Sprite {
         this.position = new Vector2(x, y);
         this.growthStage = 0;
         this.age = 0;
+        
         this.isWatered = false;
         this.name = name;
 
@@ -61,6 +63,8 @@ public class Crop extends Sprite {
 
         loadinfo(name);
 
+        
+
     }
 
     private void loadinfo(String name) {
@@ -74,6 +78,8 @@ public class Crop extends Sprite {
 
 
         price = info.get(name).getInt("price");
+
+        return_amount = info.get(name).getInt("return_amount");
 
         int y = info.get(name).get("growImage").getInt("y");
 
@@ -133,5 +139,17 @@ public class Crop extends Sprite {
     public boolean isWatered() {
         return isWatered;
     }
+    public String getName(){
+        return name;
+    }
+    public float getCropX(){
+        return position.x;
+    }
+    public float getCropY(){
+        return position.y;
+    }
 
+    public int getReturnAmount(){
+        return return_amount;
+    }
 }

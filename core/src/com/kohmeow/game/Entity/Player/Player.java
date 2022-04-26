@@ -290,4 +290,7 @@ public class Player extends Sprite {
     public State getState() {
         return this.state;
     }
+    public Player getPlayer(){
+        return this;
+    }
 }

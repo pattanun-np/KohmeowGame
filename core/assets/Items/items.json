@@ -60,7 +60,7 @@
             "desc": "A potato",
             "growthStageDuration": 3,
             "price": 10,
-            "x": 0,
+            "x": 2,
             "y": 2,
             "growImage":{
                 "x": 0,
