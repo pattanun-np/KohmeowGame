@@ -6,13 +6,14 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.kohmeow.game.KohMeowGame;
 
 public class DesktopLauncher {
-	public static void main (String[] arg) {
+	public static void main(String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.title = "KohMeow";
-		config.width = 960;
-		config.height = 640;
-		config.vSyncEnabled	= true;
-		
+		config.width = 1280;
+		config.height = 720;
+		config.vSyncEnabled = false;
+		config.resizable = false;
+
 		// config.addIcon("icontest.png", Files.FileType.Internal);
 		new LwjglApplication(new KohMeowGame(), config);
 	}

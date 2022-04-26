@@ -1,0 +1,107 @@
+{
+    "plants_product": {
+        "Carrot": {
+            "desc": "A carrot",
+            "price": 10,
+            "x": 0,
+            "y": 1
+        },
+        "Corn": {
+            "desc": "A corn",
+            "price": 5,
+            "x": 1,
+            "y": 1
+        },
+        "Potato": {
+            "desc": "A potato",
+            "price": 40,
+            "x": 2,
+            "y": 1
+        },
+        "Wheat": {
+            "desc": "A wheat",
+            "price": 5,
+            "x": 3,
+            "y": 1
+        }
+    },
+    "plants_seed": {
+        "CarrotSeed": {
+            "productName": "Carrot",
+            "return_amount": 1,
+            "GrowthStage": 4,
+            "desc": "A carrot",
+            "growthStageDuration": 2,
+            "price": 10,
+            "x": 0,
+            "y": 2,
+            "growImage":{
+                "x": 0,
+                "y": 0
+            }
+        },
+        "CornSeed": {
+            "productName": "Corn",
+            "return_amount": 1,
+            "desc": "A corn",
+            "growthStageDuration": 3,
+            "price": 5,
+            "x": 1,
+            "y": 2,
+            "growImage":{
+                "x": 0,
+                "y": 1
+            }
+        },
+        "PotatoSeed": {
+            "productName": "Potato",
+            "return_amount": 3,
+            "GrowthStage": 4,
+            "desc": "A potato",
+            "growthStageDuration": 3,
+            "price": 10,
+            "x": 2,
+            "y": 2,
+            "growImage":{
+                "x": 0,
+                "y": 3
+            }
+        },
+        "WheatSeed": {
+            "productName": "Wheat",
+            "return_amount": 4,
+            "GrowthStage": 4,
+            "growthStageDuration":1,
+            "desc": "A wheat",
+            "price": 5,
+            "x": 3,
+            "y": 2,
+            "growImage":{
+                "x": 0,
+                "y": 2
+            }
+        }
+    },
+    "tools": {
+        "Fertilizer": {
+            "desc": "Fertilizer for growing plants",
+            "x": 1,
+            "y": 0
+        },
+        "Hoe": {
+            "desc": "Hoe for growing plants",
+            "x": 1,
+            "y": 0
+        },
+        "Shovel": {
+            "desc": "Shovel for digging",
+            "x": 0,
+            "y": 0
+        },
+        "WaterPot": {
+            "desc": "Bucket for watering plants",
+            "x": 1,
+            "y": 0
+        }
+    }
+}
