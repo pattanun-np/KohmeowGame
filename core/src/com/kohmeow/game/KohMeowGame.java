@@ -7,6 +7,7 @@ import com.badlogic.gdx.audio.*;
 // import com.badlogic.gdx.graphics.g2d.BitmapFont; 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.kohmeow.game.screen.GameScreen;
+import com.kohmeow.game.screen.ManuScreen;
 
 
 public class KohMeowGame extends Game {

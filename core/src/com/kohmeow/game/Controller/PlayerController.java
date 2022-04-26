@@ -159,20 +159,13 @@ public class PlayerController implements InputProcessor {
      * @return isPatch is click area is patch;
      */
     public boolean isClickOnPatch(Vector3 coords) {
-        Patch Patch = null;
+        Boolean isClick = false;
         for (int i = 0; i < screen.numPatch; i++) {
-            Patch = screen.patchs.get(i).contains(coords.x, coords.y);
+            isClick = screen.patchs.get(i).getFrameSprite().getBoundingRectangle().contains(coords.x, coords.y);
 
         }
 
-        if (Patch != null) {
-            System.out.println("Click on patch");
-            return true;
-        } else {
-            System.out.println("Click on ground");
-            return false;
-        }
-
+        return isClick;
     }
 
     /**
@@ -180,11 +173,26 @@ public class PlayerController implements InputProcessor {
      * @param coords
      */
     public void createPatch(Vector3 coords) {
+        TiledMapTileLayer ground = (TiledMapTileLayer) screen.getMap().getLayers().get("Ground");
 
-        patch = new Patch(coords.x, coords.y);
-        screen.addPatch(patch);
-        rm.dirtSfx.play();
+        TiledMapTileLayer.Cell cell = ground.getCell(Math.round(coords.x * KohMeowGame.UNIT_SCALE),
+                Math.round(coords.y * KohMeowGame.UNIT_SCALE));
+        
 
+        if(cell != null){
+            if(cell.getTile().getId() == 99){
+                patch = new Patch(coords.x, coords.y,"grass");
+                screen.addPatch(patch);
+                rm.dirtSfx.play(.3f);
+            }
+            if(cell.getTile().getId() == 110){
+                patch = new Patch(coords.x, coords.y,"dirt");
+                screen.addPatch(patch);
+                rm.dirtSfx.play(.3f);
+            }
+        }
+
+        
     }
 
     /**
@@ -192,21 +200,9 @@ public class PlayerController implements InputProcessor {
      */
     public void removePatch(Vector3 coords) {
         System.out.println("Remove Patch");
+        screen.removeCrop(IndexOfPatch(coords));
         screen.removePatch(IndexOfPatch(coords));
         rm.dirtSfx.play();
-    }
-
-    /**
-     * 
-     * @param coords
-     * @return
-     */
-    public Patch getPatch(Vector3 coords) {
-        for (int i = 0; i < screen.numPatch; i++) {
-            patch = screen.patchs.get(i).contains(coords.x, coords.y);
-        }
-        return patch;
-
     }
 
     public int IndexOfPatch(Vector3 coords) {
@@ -224,26 +220,19 @@ public class PlayerController implements InputProcessor {
      *
      */
     public void waterPatch(Vector3 coords) {
-        Patch waterPatch = getPatch(coords);
-        if (waterPatch != null) {
-            if (!patch.isWatered()) {
-                patch.setWatered();
-                rm.waterSfx.play();
+        for (int i = 0; i < screen.numPatch; i++) {
+            if (screen.patchs.get(i).getFrameSprite().getBoundingRectangle().contains(coords.x, coords.y)) {
+                patch = screen.patchs.get(i).getPatch();
+                if (patch != null) {
+                    if (!patch.isWatered()) {
+                        patch.setWatered();
+                        rm.waterSfx.play();
 
+                    }
+                }
             }
         }
 
-    }
-
-    public boolean isEmptyPatch(Vector3 coords) {
-
-        if (isClickOnPatch(coords)) {
-            Patch checkPatch = getPatch(coords);
-
-            return checkPatch.IsEmpty();
-        } else {
-            return false;
-        }
     }
 
     /**
@@ -251,9 +240,24 @@ public class PlayerController implements InputProcessor {
      * @param coords
      */
     public void plant(String name, Vector3 coords) {
-
-        Crop crop = new Crop(name, coords.x, coords.y);
-        screen.addCrop(crop);
+        Patch patch = null;
+        for (int i = 0; i < screen.numPatch; i++) {
+            if (screen.patchs.get(i).getFrameSprite().getBoundingRectangle().contains(coords.x, coords.y)) {
+                patch = screen.patchs.get(i).getPatch();
+                if (patch != null) {
+                    if (patch.IsEmpty()) {
+                        if(screen.getNumSeed(name)>0){
+                            Crop crop = new Crop(name, coords.x, coords.y);
+                            patch.Plant(crop);
+                            screen.addCrop(crop);
+                            screen.removeSeed(name);
+                            rm.dirtSfx.play();
+                        }
+                        
+                    }
+                }
+            }
+        }
 
     }
 
@@ -285,30 +289,30 @@ public class PlayerController implements InputProcessor {
         Vector3 coords = screen.getCam().unproject(tp.set(screenX, screenY, 0));
         String currentItemType = screen.currentItem.getType();
         String currentItem = screen.currentItem.getName();
+        TiledMapTileLayer ground = (TiledMapTileLayer) screen.getMap().getLayers().get("Ground");
 
-        System.out.println(currentItemType);
+        TiledMapTileLayer.Cell cell = ground.getCell(Math.round(coords.x * KohMeowGame.UNIT_SCALE),
+                Math.round(coords.y * KohMeowGame.UNIT_SCALE));
+        
+        System.out.println(cell.getTile().getId());
 
-        if (Math.abs(Player.getPlayerCenterX() - coords.x) < 100
-                && Math.abs(Player.getPlayerCenterY() - coords.y) < 100) {
+        if (Math.abs(Player.getPlayerCenterX() - coords.x) < 30
+                && Math.abs(Player.getPlayerCenterY() - coords.y) < 30) {
 
             if (button == Input.Buttons.LEFT) {
                 switch (currentItemType) {
                     case "plants_seed":
-                        if (isClickOnPatch(coords)) {
-                            if (!isEmptyPatch(coords))
-                                System.out.println("Cannot plant on same patch");
-                            else if (isEmptyPatch(coords)) {
-                                plant(currentItem, coords);
-                            }
-                        }
+                        plant(currentItem, coords);
 
                         break;
                     case "tools":
                         if (currentItem.equals("WaterPot")) {
                             waterPatch(coords);
+
                         }
                         if (currentItem.equals("Shovel")) {
-                            if (IsPlantsabled(coords) && !isClickOnPatch(coords)) {
+
+                            if (!isClickOnPatch(coords)) {
                                 createPatch(coords);
                             }
 
@@ -321,26 +325,26 @@ public class PlayerController implements InputProcessor {
                 }
                 return true;
             }
-            if (button == Input.Buttons.RIGHT) {
-                switch (currentItem) {
-                    case "Shovel":
-                        if (isClickOnPatch(coords)) {
-                            if (isEmptyPatch(coords)) {
-                                if (screen.numPatch > 0) {
-                                    removePatch(coords);
-                                    return true;
-                                }
-                                return false;
-                            }
-                        }
-                        break;
+            // if (button == Input.Buttons.RIGHT) {
+            // switch (currentItem) {
+            // case "Shovel":
+            // if (isClickOnPatch(coords)) {
+            // if (isEmptyPatch(coords)) {
+            // if (screen.numPatch > 0 && screen.numCrops > 0) {
+            // removePatch(coords);
+            // return true;
+            // }
+            // return false;
+            // }
+            // }
+            // break;
 
-                    default:
-                        return false;
+            // default:
+            // return false;
 
-                }
+            // }
 
-            }
+            // }
         }
         // for (int i = 0; i < screen.numCrops; i++) {
         // if
@@ -389,30 +393,11 @@ public class PlayerController implements InputProcessor {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        // Vector3 coords = screen.getCam().unproject(tp.set(screenX, screenY, 0));
+        Vector3 coords = screen.getCam().unproject(tp.set(screenX, screenY, 0));
 
-        // if (Math.abs(Player.getPlayerCenterX() - coords.x) < 50
-        // && Math.abs(Player.getPlayerCenterY() - coords.y) < 50) {
-
-        // TiledMapTileLayer ground = (TiledMapTileLayer)
-        // screen.getMap().getLayers().get("Ground");
-
-        // TiledMapTileLayer.Cell cell = ground.getCell(Math.round(coords.x *
-        // KohMeowGame.UNIT_SCALE),
-        // Math.round(coords.y * KohMeowGame.UNIT_SCALE));
-
-        // System.out.println(cell != null);
-        // if (cell != null) {
-        // System.out.println("Cell: " + cell.getTile().getId());
-        // if (cell.getTile().getId() == 99) {
-        // crosshair = new Crosshair(coords.x, coords.y);
-        // screen.addCrosshiar(crosshair);
-        // screen.numCrosshair++;
-
-        // }
-        // }
-        // return false;
-        // }
+        if (!isClickOnPatch(coords)) {
+            screen.SetmousePos(coords);
+        }
 
         return false;
     }

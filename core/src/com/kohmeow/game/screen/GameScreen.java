@@ -23,6 +23,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
@@ -115,6 +116,7 @@ public class GameScreen extends ScreenAdapter {
     private Item corn;
     private Item carrot;
     private Item potato;
+    private Item wheat;
     private int currentIndex;
 
     private FreeTypeFontGenerator generator;
@@ -125,12 +127,11 @@ public class GameScreen extends ScreenAdapter {
     private BitmapFont font_info;
     private String time;
     private ShapeRenderer shapeRenderer;
-
-    private Item wheat;
-
-    private SaveController SaveController;
+    private Vector3 mousePos;
 
     private BitmapFont font_name;
+
+    private SaveController SaveController;
 
     public GameScreen(KohMeowGame game) {
 
@@ -152,6 +153,8 @@ public class GameScreen extends ScreenAdapter {
         cam.setToOrtho(false, gameView.getWorldWidth(), gameView.getWorldHeight());
 
         map = new TmxMapLoader().load("Map/Base.tmx");
+        mapWidth = map.getProperties().get("width", Integer.class) * 32;
+        mapHeight = map.getProperties().get("height", Integer.class) * 32;
         renderer = new OrthogonalTiledMapRenderer(map);
         renderer.setView(cam);
 
@@ -164,8 +167,7 @@ public class GameScreen extends ScreenAdapter {
         timer.setStartTime(0, 12, 0, 0);
         clock = new GameTimeClock(timer);
 
-        mapWidth = map.getProperties().get("width", Integer.class) * 32;
-        mapHeight = map.getProperties().get("height", Integer.class) * 32;
+        mousePos = new Vector3();
 
         player = new Player();
         controller = new PlayerController(this, player);
@@ -173,17 +175,17 @@ public class GameScreen extends ScreenAdapter {
         currentPlayerSprite = player.getFrameSprite();
         shapeRenderer = new ShapeRenderer();
 
-        mouseCrop = new Texture("Items/Plants.png");
-
-        textureFrames = TextureRegion.split(mouseCrop, 32, 32);
-        textureFrames2 = TextureRegion.split(new Texture("UI/Crosshair2.png"), 32, 32);
-
         crops = new Array<Crop>();
         patchs = new Array<Patch>();
 
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new OrthographicCamera());
 
         stage = new Stage(viewport, game.batch);
+
+        mouseCrop = new Texture("Items/Plants.png");
+
+        textureFrames = TextureRegion.split(mouseCrop, 32, 32);
+        textureFrames2 = TextureRegion.split(new Texture("UI/Crosshair2.png"), 32, 32);
 
         rm = new ResourceMannager();
         box = rm.getTexture("UI/Box.png");
@@ -194,8 +196,8 @@ public class GameScreen extends ScreenAdapter {
         shovel = new Item("Shovel", "tools");
 
         carrotSeed = new Item("CarrotSeed", "plants_seed", 20);
-        cornSeed = new Item("CornSeed", "plants_seed", 10);
-        wheatSeed = new Item("WheatSeed", "plants_seed", 30);
+        cornSeed = new Item("CornSeed", "plants_seed", 0);
+        wheatSeed = new Item("WheatSeed", "plants_seed", 0);
         potatoSeed = new Item("PotatoSeed", "plants_seed", 10);
 
         carrot = new Item("Carrot", "plants_product", 0);
@@ -219,7 +221,6 @@ public class GameScreen extends ScreenAdapter {
         setCurrentIndex(0);
 
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
-
         inputMultiplexer.addProcessor(controller);
         Gdx.input.setInputProcessor(inputMultiplexer);
 
@@ -291,6 +292,7 @@ public class GameScreen extends ScreenAdapter {
 
         // System.out.println("Player X: " + player.getX() + " Y: " + player.getY());
         // System.out.println("Num Crops: " + numCrops);
+        // System.out.println("Num Patchs: " + numPatch);
         // System.out.println("Num Crosshair: " + numCrosshair);
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -339,12 +341,9 @@ public class GameScreen extends ScreenAdapter {
         game.batch.begin();
 
         for (int j = 0; j < numPatch; j++) {
-            if (patchs.get(j).isWatered()) {
-                game.batch.setColor(Color.BROWN);
-            }
+
             game.batch.draw(patchs.get(j).getCurrentFrame(), patchs.get(j).getFrameSprite().getX(),
-                    patchs.get(j).getFrameSprite().getY() - 6);
-            game.batch.setColor(Color.WHITE);
+                    patchs.get(j).getFrameSprite().getY());
 
         }
 
@@ -355,6 +354,11 @@ public class GameScreen extends ScreenAdapter {
 
         }
 
+        float x = (mousePos.x - 16);
+        float y = (mousePos.y - 16);
+        game.batch.setColor(10, 100, 1, 0.5f);
+        game.batch.draw(border, x, y);
+        game.batch.setColor(Color.WHITE);
         // Draw Item On Player
         font_name.draw(game.batch, String.format("%s", currentItem.getName()),
                 currentPlayerSprite.getX() + 16,
@@ -363,26 +367,26 @@ public class GameScreen extends ScreenAdapter {
                 currentPlayerSprite.getY() + 64, 24, 24);
 
         // System.out.println("Select Item: " + currentItem.getName());
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < items.size; i++) {
 
             game.batch.draw(box, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
                     cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 10);
-            if (i < items.size) {
-                // System.out.println(items.get(i).getName() + " " + items.get(i).getType() + "
-                // " + items.get(i).getNum());
-                game.batch.draw(items.get(i).getTextureRegion(), (cam.position.x + 32 * i) -
-                        (cam.viewportWidth / 2 * (cam.zoom / 2)),
-                        cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 10);
 
-                if (items.get(i).getType() == "plants_product" || items.get(i).getType() == "plants_seed")
-                    font.draw(game.batch, String.format("x%d", items.get(i).getNum()),
-                            (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2) - 6) + 5,
-                            cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 23);
-                if (items.get(i).getItem() == currentItem.getItem()) {
-                    game.batch.draw(border, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
-                            cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 10);
-                }
+            // System.out.println(items.get(i).getName() + " " + items.get(i).getType() + "
+            // " + items.get(i).getNum());
+            game.batch.draw(items.get(i).getTextureRegion(), (cam.position.x + 32 * i) -
+                    (cam.viewportWidth / 2 * (cam.zoom / 2)),
+                    cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 10);
+
+            if (items.get(i).getType() == "plants_product" || items.get(i).getType() == "plants_seed")
+                font.draw(game.batch, String.format("x%d", items.get(i).getNum()),
+                        (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2) - 6) + 5,
+                        cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 23);
+            if (items.get(i).getItem() == currentItem.getItem()) {
+                game.batch.draw(border, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
+                        cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 10);
             }
+
         }
         game.batch.draw(info, (cam.position.x) - (cam.viewportWidth / 4),
                 (cam.position.y) + (cam.viewportHeight / 3 * (cam.zoom / 2) + 20), 230, 70);
@@ -400,21 +404,17 @@ public class GameScreen extends ScreenAdapter {
                 (cam.position.y) + 135);
 
         // Draw Player
-        
 
         game.batch.draw(currentPlayerFrame, currentPlayerSprite.getX(), currentPlayerSprite.getY());
-        
+
         game.batch.end();
-
-
-       
-
 
         shapeRenderer.setProjectionMatrix(cam.combined);
         Gdx.gl20.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(clock.getAmbientLighting());
+
         Matrix4 mat = cam.combined.cpy();
         shapeRenderer.setProjectionMatrix(mat);
         mat.setToOrtho2D(0, 0, Gdx.graphics.getWidth(),
@@ -466,6 +466,11 @@ public class GameScreen extends ScreenAdapter {
         numCrops++;
     }
 
+    public void removeCrop(int currentIndex) {
+        crops.removeIndex(currentIndex);
+        numCrops--;
+    }
+
     public void addPatch(Patch patch) {
         patchs.add(patch);
         numPatch++;
@@ -497,8 +502,28 @@ public class GameScreen extends ScreenAdapter {
         // item.addAmount();
     }
 
-    public void removeSeed(Item item) {
-        item.removeAmount(1);
+    public void removeSeed(String name) {
+        for (int i = 0; i < items.size; i++) {
+            if (items.get(i).getName() == name) {
+                items.get(i).removeAmount(1);
+                if (items.get(i).getNum() == 0) {
+                    items.removeIndex(i);
+                }
+            }
+
+        }
+    }
+
+    public int getNumSeed(String name) {
+        int num = 0;
+        for (int i = 0; i < items.size; i++) {
+            if (items.get(i).getName() == name) {
+                num = items.get(i).getNum();
+
+            }
+
+        }
+        return num;
     }
 
     public void GameSave() {
@@ -506,8 +531,13 @@ public class GameScreen extends ScreenAdapter {
 
     }
 
+    public void SetmousePos(Vector3 coords) {
+        mousePos = coords;
+    }
+
     @Override
     public void dispose() {
+
         stage.dispose();
         map.dispose();
         box.dispose();

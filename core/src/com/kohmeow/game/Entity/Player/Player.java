@@ -1,6 +1,5 @@
 package com.kohmeow.game.Entity.Player;
 
-
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -10,6 +9,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 
+/**
+ * Created by pattanunNP 
+ * @Author pattanunNP
+ */
+ 
 public class Player extends Sprite {
 
     private Vector2 velocity; // Movement Vel
@@ -45,8 +49,6 @@ public class Player extends Sprite {
     private Texture texture;
 
     public static Rectangle boundingBox;
-
-
 
     public enum State {
         IDLE,
@@ -149,10 +151,11 @@ public class Player extends Sprite {
     }
 
     public void update(float delta) {
-        // System.out.println(String.format("Frame Time :%f Delta :%f", frameTime, delta));
-        if (state == State.WALKING){
+        // System.out.println(String.format("Frame Time :%f Delta :%f", frameTime,
+        // delta));
+        if (state == State.WALKING) {
             frameTime = (frameTime + delta) % 5;
-           
+
         }
 
         if (state == State.IDLE)
@@ -205,32 +208,31 @@ public class Player extends Sprite {
 
         float x = currentPosition.x;
         float y = currentPosition.y;
-       
 
         switch (direction) {
             case WALKING_DOWN:
                 y -= velocity.y;
-                
+
                 break;
             case WALKING_UP:
                 y += velocity.y;
-               
+
                 break;
             case WALKING_LEFT:
                 x -= velocity.x;
-            
+
                 break;
             case WALKING_RIGHT:
                 x += velocity.x;
 
                 break;
             case JUMP:
-                y += velocity.y+2;
-                x += velocity.x+2;
-               
-                y += velocity.y-2;
-                x += velocity.x-2;
-               
+                y += velocity.y + 2;
+                x += velocity.x + 2;
+
+                y += velocity.y - 2;
+                x += velocity.x - 2;
+
                 break;
 
             default:
@@ -249,39 +251,36 @@ public class Player extends Sprite {
         switch (currentDirection) {
             case WALKING_DOWN:
                 currentFrame = walkDown.getKeyFrame(frameTime);
-                
                 break;
 
             case WALKING_UP:
                 currentFrame = walkUp.getKeyFrame(frameTime);
-              
                 break;
 
             case WALKING_LEFT:
                 currentFrame = walkLeft.getKeyFrame(frameTime);
-             
                 break;
+
             case WALKING_RIGHT:
                 currentFrame = walkRight.getKeyFrame(frameTime);
-                
                 break;
 
             case UP:
-
                 currentFrame = standUp.getKeyFrame(frameTime);
                 break;
-            case DOWN:
 
+            case DOWN:
                 currentFrame = standDown.getKeyFrame(frameTime);
                 break;
-            case LEFT:
 
+            case LEFT:
                 currentFrame = standLeft.getKeyFrame(frameTime);
                 break;
-            case RIGHT:
 
+            case RIGHT:
                 currentFrame = standRight.getKeyFrame(frameTime);
                 break;
+
             default:
                 break;
         }
@@ -290,7 +289,8 @@ public class Player extends Sprite {
     public State getState() {
         return this.state;
     }
-    public Player getPlayer(){
+
+    public Player getPlayer() {
         return this;
     }
 }
