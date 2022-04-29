@@ -31,7 +31,7 @@ public class KohMeowGame extends Game {
         System.out.println("Loading Assets");
         System.out.println("-------------------------------------");
       
-        setScreen(new GameScreen(this));
+        setScreen(new ManuScreen(this));
 	}
 
     @Override

@@ -298,6 +298,7 @@ public class GameScreen extends ScreenAdapter {
         return checkCollision(boundingBox, objectLayer);
     }
 
+
     @Override
     public void render(float delta) {
 

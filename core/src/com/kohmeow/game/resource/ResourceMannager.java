@@ -12,12 +12,17 @@ public class ResourceMannager {
 
     private JsonReader jsonReader;
 
-    public Music musicTheme;
-    public Sound dirtSfx, waterSfx;
+
+    public Music musicTheme,mainMenu;
+    public Sound dirtSfx,waterSfx;
+
 
     public ResourceMannager() {
         assetManager = new AssetManager();
         jsonReader = new JsonReader();
+
+        assetManager.load("UI/Start.png", Texture.class);
+        assetManager.load("UI/how2play.png", Texture.class);
 
         assetManager.load("Items/Items.png", Texture.class);
         assetManager.load("Entity/DirtPatch/DirtPatch.png", Texture.class);
@@ -34,12 +39,14 @@ public class ResourceMannager {
         assetManager.load("Sound/sfx/watering.mp3", Sound.class);
         assetManager.load("Sound/sfx/dirt.mp3", Sound.class);
 
+        assetManager.load("music/MainMenuSound.mp3", Music.class);
         assetManager.load("music/Leaning On the Everlasting Arms - Zachariah Hickman.mp3", Music.class);
         // manager.load("font/small_letters_font.fnt",BitmapFont.class);
 
         assetManager.finishLoading();
 
         musicTheme = assetManager.get("music/Leaning On the Everlasting Arms - Zachariah Hickman.mp3", Music.class);
+        mainMenu = assetManager.get("music/MainMenuSound.mp3", Music.class);
 
         dirtSfx = assetManager.get("Sound/sfx/dirt.mp3", Sound.class);
         waterSfx = assetManager.get("Sound/sfx/watering.mp3", Sound.class);
