@@ -6,6 +6,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.kohmeow.game.KohMeowGame;
@@ -41,6 +42,10 @@ public class ManuScreen implements Screen {
 
  private ResourceMannager rm;
  private Music music;
+ private FreeTypeFontGenerator generator;
+ private FreeTypeFontGenerator.FreeTypeFontParameter parameter;
+ private BitmapFont font;
+
 
  public ManuScreen (final KohMeowGame game) {
   this.game = game;
@@ -92,10 +97,22 @@ public class ManuScreen implements Screen {
   final Table howtoplay = new Table();
   howtoplayinfo.setPosition(58,62);
   backButton.setPosition(1092,534);
+  Label.LabelStyle font = new Label.LabelStyle(this.create(), Color.WHITE);
+  font.font.getData().setScale(2.5F);
+  final Label howToInfo = new Label(
+          "\n How to play:\n\n" +
+          "-Move around using arrow keys or WASD\n\n" +
+          "-Cycle crop seeds and tools using the mouse wheel or number keys\n\n" +
+          "-When seeds are equipped, click on any grass\n\n to plant crops (must have seeds)\n\n"+
+          "-Click on full grown crops to harvest for cash\n\n" +
+          "-Seeds will randomly collected after crops had been harvested\n\n" +
+          "", font);
+  howToInfo.setPosition(170,173);
   howtoStage.addActor(howtoplay);
   howtoplay.center();
   howtoplay.setFillParent(true);
   howtoplay.addActor(howtoplayinfo);
+  howtoplay.addActor(howToInfo);
   howtoplay.addActor(backButton);
   howtoplay.setVisible(false);
 
@@ -124,11 +141,6 @@ public class ManuScreen implements Screen {
    }
 
   });
-
-
-
-
-
 
  }
 
@@ -180,5 +192,18 @@ public class ManuScreen implements Screen {
   mainStage.dispose();
   howtoStage.dispose();
   music.dispose();
+ }
+
+ public BitmapFont create() {
+  generator = new FreeTypeFontGenerator(Gdx.files.internal("font/PixelFJVerdana12pt.ttf"));
+
+  parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+  parameter.size = 5;
+  parameter.color = Color.BROWN;
+  parameter.borderWidth = 1;
+  parameter.borderColor = Color.WHITE;
+
+  font = generator.generateFont(parameter);
+  return font;
  }
 }
