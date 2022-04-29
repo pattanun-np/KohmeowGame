@@ -16,6 +16,7 @@ public class Crop extends Sprite {
     private Vector2 position;
     private int growthStage;
     private int growthStageDuration;
+
     private int age;
     private int daysNotWatered;
     private int price;
@@ -34,9 +35,9 @@ public class Crop extends Sprite {
 
     private JsonValue cropInfo;
     private JsonReader jsonReader;
-    private JsonValue info;
     private Sprite frameSprite;
-    private int return_amount;
+    private String ReturnProduct;
+    private int ReturnAmount;
 
     public Crop(String name, float x, float y) {
 
@@ -47,13 +48,13 @@ public class Crop extends Sprite {
         this.position = new Vector2(x, y);
         this.growthStage = 0;
         this.age = 0;
-        
+
         this.isWatered = false;
         this.name = name;
 
         centerX = x - 16;
         centerY = y - 16;
-        
+
         cropInfo = jsonReader.parse(Gdx.files.internal("Items/Items.json"));
         textureFrames = rm.getTextureRegion("Entity/Plants/SpriteSheetVeg.png", 32, 64);
 
@@ -63,23 +64,21 @@ public class Crop extends Sprite {
 
         loadinfo(name);
 
-        
-
     }
 
     private void loadinfo(String name) {
         cropFrames = new Array<TextureRegion>(4);
-       
 
-       
         JsonValue info = cropInfo.get("plants_seed");
 
         growthStageDuration = info.get(name).getInt("growthStageDuration");
 
-
         price = info.get(name).getInt("price");
 
-        return_amount = info.get(name).getInt("return_amount");
+        this.ReturnProduct = info.get(name).getString("productName");
+        this.ReturnAmount = info.get(name).getInt("return_amount");
+
+
 
         int y = info.get(name).get("growImage").getInt("y");
 
@@ -102,6 +101,7 @@ public class Crop extends Sprite {
         }
         this.isWatered = false;
         checkGrowth();
+
 
     }
 
@@ -139,17 +139,24 @@ public class Crop extends Sprite {
     public boolean isWatered() {
         return isWatered;
     }
-    public String getName(){
+
+    public String getName() {
         return name;
     }
-    public float getCropX(){
+
+    public float getCropX() {
         return position.x;
     }
-    public float getCropY(){
+
+    public float getCropY() {
         return position.y;
     }
 
-    public int getReturnAmount(){
-        return return_amount;
+    public String getReturn() {
+        return ReturnProduct;
+    }
+
+    public int getRetrunAmount() {
+        return ReturnAmount;
     }
 }
