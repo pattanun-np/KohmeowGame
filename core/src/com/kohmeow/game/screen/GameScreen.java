@@ -133,6 +133,8 @@ public class GameScreen extends ScreenAdapter {
 
     private SaveController SaveController;
 
+    private Item sickle;
+
     public GameScreen(KohMeowGame game) {
 
         this.game = game;
@@ -194,6 +196,7 @@ public class GameScreen extends ScreenAdapter {
 
         waterPot = new Item("WaterPot", "tools");
         shovel = new Item("Shovel", "tools");
+        sickle = new Item("Sickle", "tools");
 
         carrotSeed = new Item("CarrotSeed", "plants_seed", 20);
         cornSeed = new Item("CornSeed", "plants_seed", 0);
@@ -205,17 +208,19 @@ public class GameScreen extends ScreenAdapter {
         potato = new Item("Potato", "plants_product", 0);
         wheat = new Item("Wheat", "plants_product", 0);
 
-        items = new Array<Item>(10);
+        items = new Array<Item>(11);
         items.insert(0, waterPot);
         items.insert(1, shovel);
-        items.insert(2, carrotSeed);
-        items.insert(3, cornSeed);
-        items.insert(4, wheatSeed);
-        items.insert(5, potatoSeed);
-        items.insert(6, carrot);
-        items.insert(7, corn);
-        items.insert(8, potato);
-        items.insert(9, wheat);
+        items.insert(2, sickle);
+        items.insert(3, carrotSeed);
+        items.insert(4, cornSeed);
+        items.insert(5, wheatSeed);
+        items.insert(6, potatoSeed);
+        items.insert(7, carrot);
+        items.insert(8, corn);
+        items.insert(9, potato);
+        items.insert(10, wheat);
+        
 
         setSelectedItem(waterPot);
         setCurrentIndex(0);

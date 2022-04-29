@@ -24,6 +24,7 @@ public class ResourceMannager {
 
         assetManager.load("Items/Items.png", Texture.class);
         assetManager.load("Entity/DirtPatch/DirtPatch.png",Texture.class);
+        assetManager.load("Entity/Player/SpireSheet3.png", Texture.class);
         assetManager.load("Entity/Plants/SpriteSheetVeg.png", Texture.class);
 
         assetManager.load("UI/Box.png", Texture.class);

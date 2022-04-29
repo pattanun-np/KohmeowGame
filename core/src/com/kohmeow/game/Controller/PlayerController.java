@@ -27,6 +27,8 @@ public class PlayerController implements InputProcessor {
     private boolean up;
     private boolean down;
     private boolean jump;
+    private boolean wateringLeft, wateringRight;
+
     private boolean toggleInventory;
     private ResourceMannager rm;
     private GameScreen screen;
@@ -48,6 +50,8 @@ public class PlayerController implements InputProcessor {
         up = false;
         down = false;
         jump = false;
+        wateringLeft = false;
+        wateringRight = false;
         toggleInventory = false;
         currentIndex = screen.getCurrentIndex();
         tempIndex = currentIndex;
@@ -177,22 +181,20 @@ public class PlayerController implements InputProcessor {
 
         TiledMapTileLayer.Cell cell = ground.getCell(Math.round(coords.x * KohMeowGame.UNIT_SCALE),
                 Math.round(coords.y * KohMeowGame.UNIT_SCALE));
-        
 
-        if(cell != null){
-            if(cell.getTile().getId() == 99){
-                patch = new Patch(coords.x, coords.y,"grass");
+        if (cell != null) {
+            if (cell.getTile().getId() == 99) {
+                patch = new Patch(coords.x, coords.y, "grass");
                 screen.addPatch(patch);
                 rm.dirtSfx.play(.3f);
             }
-            if(cell.getTile().getId() == 110){
-                patch = new Patch(coords.x, coords.y,"dirt");
+            if (cell.getTile().getId() == 110) {
+                patch = new Patch(coords.x, coords.y, "dirt");
                 screen.addPatch(patch);
                 rm.dirtSfx.play(.3f);
             }
         }
 
-        
     }
 
     /**
@@ -246,14 +248,14 @@ public class PlayerController implements InputProcessor {
                 patch = screen.patchs.get(i).getPatch();
                 if (patch != null) {
                     if (patch.IsEmpty()) {
-                        if(screen.getNumSeed(name)>0){
+                        if (screen.getNumSeed(name) > 0) {
                             Crop crop = new Crop(name, coords.x, coords.y);
                             patch.Plant(crop);
                             screen.addCrop(crop);
                             screen.removeSeed(name);
                             rm.dirtSfx.play();
                         }
-                        
+
                     }
                 }
             }
@@ -293,7 +295,7 @@ public class PlayerController implements InputProcessor {
 
         TiledMapTileLayer.Cell cell = ground.getCell(Math.round(coords.x * KohMeowGame.UNIT_SCALE),
                 Math.round(coords.y * KohMeowGame.UNIT_SCALE));
-        
+
         System.out.println(cell.getTile().getId());
 
         if (Math.abs(Player.getPlayerCenterX() - coords.x) < 30
@@ -307,6 +309,7 @@ public class PlayerController implements InputProcessor {
                         break;
                     case "tools":
                         if (currentItem.equals("WaterPot")) {
+                            wateringLeft = true;
                             waterPatch(coords);
 
                         }
@@ -486,6 +489,19 @@ public class PlayerController implements InputProcessor {
                     && player.getState() == Player.State.IDLE) {
                 // System.out.println("IDLE LEFT");
                 player.setDirection(Player.Direction.LEFT, delta);
+            }
+        } else if (!up && !down && !left && !right) {
+            player.setState(Player.State.IDLE);
+
+            if (player.getDirection() == Player.Direction.WALKING_LEFT && player.getState() == Player.State.WATERING) {
+                // System.out.println("IDLE UP");
+                player.setDirection(Player.Direction.WATERING_LEFT, delta);
+
+            } else if (player.getDirection() == Player.Direction.WALKING_RIGHT
+                    && player.getState() == Player.State.WALKING) {
+                // System.out.println("IDLE DOWN");
+                player.setDirection(Player.Direction.WATERING_RIGHT, delta);
+
             }
         }
 

@@ -83,14 +83,10 @@
         }
     },
     "tools": {
-        "Fertilizer": {
-            "desc": "Fertilizer for growing plants",
-            "x": 1,
-            "y": 0
-        },
-        "Hoe": {
-            "desc": "Hoe for growing plants",
-            "x": 1,
+
+        "Sickle": {
+            "desc": "Sickle for haveast plants",
+            "x": 2,
             "y": 0
         },
         "Shovel": {
