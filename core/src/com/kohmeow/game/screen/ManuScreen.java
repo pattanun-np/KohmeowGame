@@ -41,7 +41,7 @@ public class ManuScreen implements Screen {
  private Table table;
 
  private ResourceMannager rm;
- private Music music;
+ private Music music,sfx;
  private FreeTypeFontGenerator generator;
  private FreeTypeFontGenerator.FreeTypeFontParameter parameter;
  private BitmapFont font;
@@ -56,10 +56,14 @@ public class ManuScreen implements Screen {
   background = new Texture("UI/BG.png");
 
   rm = new ResourceMannager();
-  music = rm.mainMenu;
+  music = rm.musicTheme;
   music.setLooping(true);
-  music.setVolume(.2f);
+  music.setVolume(.1f);
   music.play();
+  sfx = rm.mainMenu;
+  sfx.setLooping(true);
+  sfx.setVolume(.2f);
+  sfx.play();
 
   Texture startbTexture = new Texture(Gdx.files.internal("UI/bStart.png"));
   Texture startbTexturePressed = new Texture(Gdx.files.internal("UI/bStartPress.png"));
@@ -100,14 +104,14 @@ public class ManuScreen implements Screen {
   Label.LabelStyle font = new Label.LabelStyle(this.create(), Color.WHITE);
   font.font.getData().setScale(2.5F);
   final Label howToInfo = new Label(
-          "\n How to play:\n\n" +
+          "How to play:\n\n" +
           "-Move around using arrow keys or WASD\n\n" +
           "-Cycle crop seeds and tools using the mouse wheel or number keys\n\n" +
           "-When seeds are equipped, click on any grass\n\n to plant crops (must have seeds)\n\n"+
           "-Click on full grown crops to harvest for cash\n\n" +
           "-Seeds will randomly collected after crops had been harvested\n\n" +
           "", font);
-  howToInfo.setPosition(170,173);
+  howToInfo.setPosition(170,140);
   howtoStage.addActor(howtoplay);
   howtoplay.center();
   howtoplay.setFillParent(true);
