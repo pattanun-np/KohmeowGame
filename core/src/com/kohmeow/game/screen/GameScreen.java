@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
@@ -23,11 +22,9 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
-
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kohmeow.game.KohMeowGame;
@@ -36,6 +33,7 @@ import com.kohmeow.game.Entity.Plants.Crop;
 import com.kohmeow.game.Entity.Plants.Patch;
 import com.kohmeow.game.Entity.Player.Player;
 import com.kohmeow.game.Items.Item;
+import com.kohmeow.game.UI.HudInventory;
 import com.kohmeow.game.UI.Info;
 import com.kohmeow.game.resource.ResourceMannager;
 import com.kohmeow.game.utils.Crosshair;
@@ -76,7 +74,6 @@ public class GameScreen extends ScreenAdapter {
 
     private Texture box;
     private Texture border;
-   
 
     public int numCrops;
     public int numPatch;
@@ -106,9 +103,11 @@ public class GameScreen extends ScreenAdapter {
     private int money;
 
     public int numCrosshair;
+
     private Array<Crosshair> Crosshairs;
 
     private Info info;
+    private HudInventory hudInventory;
 
     private Item waterPot;
     private Item shovel;
@@ -151,8 +150,6 @@ public class GameScreen extends ScreenAdapter {
         money = 1000;
 
         SaveController = new SaveController();
-
-       
 
         cam = new OrthographicCamera();
         gameView = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), cam);
@@ -197,7 +194,6 @@ public class GameScreen extends ScreenAdapter {
         rm = new ResourceMannager();
         box = rm.getTexture("UI/Box.png");
         border = rm.getTexture("UI/Crosshair.gif");
- 
 
         waterPot = new Item("WaterPot", "tools");
         shovel = new Item("Shovel", "tools");
@@ -225,7 +221,6 @@ public class GameScreen extends ScreenAdapter {
         items.insert(8, corn);
         items.insert(9, potato);
         items.insert(10, wheat);
-        
 
         setSelectedItem(waterPot);
         setCurrentIndex(0);
@@ -234,8 +229,8 @@ public class GameScreen extends ScreenAdapter {
         inputMultiplexer.addProcessor(controller);
         Gdx.input.setInputProcessor(inputMultiplexer);
 
-
-        info = new Info(game.batch, cam, font_info);
+        info = new Info(game.batch, cam, font_info, rm);
+        hudInventory = new HudInventory(game.batch, cam, font_name, rm);
 
         music = rm.musicTheme;
         music.setLooping(true);
@@ -356,7 +351,7 @@ public class GameScreen extends ScreenAdapter {
         for (int j = 0; j < numPatch; j++) {
 
             game.batch.draw(patchs.get(j).getCurrentFrame(), patchs.get(j).getFrameSprite().getX(),
-                    patchs.get(j).getFrameSprite().getY());
+                    patchs.get(j).getFrameSprite().getY()-6);
 
         }
 
@@ -380,28 +375,9 @@ public class GameScreen extends ScreenAdapter {
                 currentPlayerSprite.getY() + 64, 24, 24);
 
         // System.out.println("Select Item: " + currentItem.getName());
-        for (int i = 0; i < items.size; i++) {
 
-            game.batch.draw(box, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
-                    cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 10);
-
-            // System.out.println(items.get(i).getName() + " " + items.get(i).getType() + "
-            // " + items.get(i).getNum());
-            game.batch.draw(items.get(i).getTextureRegion(), (cam.position.x + 32 * i) -
-                    (cam.viewportWidth / 2 * (cam.zoom / 2)),
-                    cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 10);
-
-            if (items.get(i).getType() == "plants_product" || items.get(i).getType() == "plants_seed")
-                font.draw(game.batch, String.format("x%d", items.get(i).getNum()),
-                        (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2) - 6) + 5,
-                        cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 23);
-            if (items.get(i).getItem() == currentItem.getItem()) {
-                game.batch.draw(border, (cam.position.x + 32 * i) - (cam.viewportWidth / 2 * (cam.zoom / 2)),
-                        cam.position.y - (cam.viewportHeight / 2 * cam.zoom) + 10);
-            }
-
-        }
         info.draw(currentDays, totalDays, money, time);
+        hudInventory.draw(items, currentItem, font);
 
         // Draw Player
 

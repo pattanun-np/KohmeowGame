@@ -13,8 +13,8 @@ public class Info {
     private SpriteBatch batch;
     private OrthographicCamera cam;
 
-    public Info(SpriteBatch batch, OrthographicCamera camera, BitmapFont font_info) {
-        this.rm = new ResourceMannager();
+    public Info(SpriteBatch batch, OrthographicCamera camera, BitmapFont font_info, ResourceMannager rm) {
+        this.rm = rm;
         this.cam = camera;
         this.info = rm.getTexture("UI/info.png");
         this.font_info = font_info;
