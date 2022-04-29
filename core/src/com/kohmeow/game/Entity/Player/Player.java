@@ -1,6 +1,5 @@
 package com.kohmeow.game.Entity.Player;
 
-
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -8,7 +7,13 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.kohmeow.game.resource.ResourceMannager;
 
+/**
+ * Created by pattanunNP
+ * 
+ * @Author pattanunNP
+ */
 
 public class Player extends Sprite {
 
@@ -24,6 +29,12 @@ public class Player extends Sprite {
     private Animation<TextureRegion> walkUp;
     private Animation<TextureRegion> walkDown;
 
+    private Animation<TextureRegion> digLeft;
+    private Animation<TextureRegion> digRight;
+
+    private Animation<TextureRegion> wateringLeft;
+    private Animation<TextureRegion> wateringRight;
+
     private Array<TextureRegion> walkLeftFrames;
     private Array<TextureRegion> walkRightFrames;
     private Array<TextureRegion> walkUpFrames;
@@ -32,6 +43,12 @@ public class Player extends Sprite {
     private Array<TextureRegion> standRightFrames;
     private Array<TextureRegion> standUpFrames;
     private Array<TextureRegion> standDownFrames;
+
+    private Array<TextureRegion> digLeftFrames;
+    private Array<TextureRegion> digRightFrames;
+
+    private Array<TextureRegion> wateringLeftFrames;
+    private Array<TextureRegion> wateringRightFrames;
 
     private Vector2 nextPosition; // Next cord of entity
     private Vector2 currentPosition; // Current cord of entity
@@ -43,14 +60,15 @@ public class Player extends Sprite {
     private TextureRegion currentFrame;
 
     private Texture texture;
+    private ResourceMannager rm;
 
     public static Rectangle boundingBox;
 
-
-
     public enum State {
         IDLE,
-        WALKING
+        WALKING,
+        DIGGING,
+        WATERING
     }
 
     public enum Direction {
@@ -62,6 +80,10 @@ public class Player extends Sprite {
         WALKING_RIGHT,
         WALKING_DOWN,
         WALKING_LEFT,
+        DIG_LEFT,
+        DIG_RIGHT,
+        WATERING_LEFT,
+        WATERING_RIGHT,
         JUMP
 
     }
@@ -71,12 +93,13 @@ public class Player extends Sprite {
         this.currentPosition = new Vector2();
         this.boundingBox = new Rectangle();
         this.velocity = new Vector2(2.5f, 2.5f);
+        this.rm = new ResourceMannager();
 
         frameTime = 0f;
 
         currentDirection = Direction.DOWN;
 
-        texture = new Texture("Entity/Player/SpireSheet2.png");
+        texture = rm.getTexture("Entity/Player/SpireSheet3.png");
 
         loadSprite();
         loadAnimations();
@@ -102,6 +125,12 @@ public class Player extends Sprite {
         standUpFrames = new Array<TextureRegion>(8);
         standLeftFrames = new Array<TextureRegion>(8);
         standRightFrames = new Array<TextureRegion>(8);
+
+        digLeftFrames = new Array<TextureRegion>(8);
+        digRightFrames = new Array<TextureRegion>(8);
+
+        wateringLeftFrames = new Array<TextureRegion>(8);
+        wateringRightFrames = new Array<TextureRegion>(8);
 
         for (int i = 0; i < 8; i++) {
             walkDownFrames.insert(i, textureFrames[0][i]);
@@ -131,6 +160,19 @@ public class Player extends Sprite {
             standUpFrames.insert(i, textureFrames[7][i]);
         }
 
+        for (int i = 0; i < 8; i++) {
+            digLeftFrames.insert(i, textureFrames[8][i]);
+        }
+        for (int i = 0; i < 8; i++) {
+            digRightFrames.insert(i, textureFrames[9][i]);
+        }
+        for (int i = 0; i < 8; i++) {
+            wateringLeftFrames.insert(i, textureFrames[10][i]);
+        }
+        for (int i = 0; i < 8; i++) {
+            wateringRightFrames.insert(i, textureFrames[11][i]);
+        }
+
         walkDown = new Animation<TextureRegion>(.1f, walkDownFrames, Animation.PlayMode.LOOP);
         walkUp = new Animation<TextureRegion>(.1f, walkUpFrames, Animation.PlayMode.LOOP);
         walkLeft = new Animation<TextureRegion>(.1f, walkLeftFrames, Animation.PlayMode.LOOP);
@@ -141,6 +183,11 @@ public class Player extends Sprite {
         standLeft = new Animation<TextureRegion>(.1f, standLeftFrames, Animation.PlayMode.LOOP);
         standRight = new Animation<TextureRegion>(.1f, standRightFrames, Animation.PlayMode.LOOP);
 
+        digLeft = new Animation<TextureRegion>(.1f, digLeftFrames, Animation.PlayMode.LOOP);
+        digRight = new Animation<TextureRegion>(.1f, digRightFrames, Animation.PlayMode.LOOP);
+
+        wateringLeft = new Animation<TextureRegion>(.1f, wateringLeftFrames, Animation.PlayMode.LOOP);
+        wateringRight = new Animation<TextureRegion>(.1f, wateringRightFrames, Animation.PlayMode.LOOP);
     }
 
     public void startingPosition(float x, float y) {
@@ -149,14 +196,14 @@ public class Player extends Sprite {
     }
 
     public void update(float delta) {
-        // System.out.println(String.format("Frame Time :%f Delta :%f", frameTime, delta));
-        if (state == State.WALKING){
+        // System.out.println(String.format("Frame Time :%f Delta :%f", frameTime,
+        // delta));
+        if (state == State.WALKING || state == State.WATERING || state == State.DIGGING || state == State.IDLE) {
             frameTime = (frameTime + delta) % 5;
-           
+
         }
 
-        if (state == State.IDLE)
-            frameTime = 0;
+    
         boundingBox.set(nextPosition.x + 20, nextPosition.y, 24, 12); // Set BBOX for range of planting action
     }
 
@@ -205,32 +252,31 @@ public class Player extends Sprite {
 
         float x = currentPosition.x;
         float y = currentPosition.y;
-       
 
         switch (direction) {
             case WALKING_DOWN:
                 y -= velocity.y;
-                
+
                 break;
             case WALKING_UP:
                 y += velocity.y;
-               
+
                 break;
             case WALKING_LEFT:
                 x -= velocity.x;
-            
+
                 break;
             case WALKING_RIGHT:
                 x += velocity.x;
 
                 break;
             case JUMP:
-                y += velocity.y+2;
-                x += velocity.x+2;
-               
-                y += velocity.y-2;
-                x += velocity.x-2;
-               
+                y += velocity.y + 2;
+                x += velocity.x + 2;
+
+                y += velocity.y - 2;
+                x += velocity.x - 2;
+
                 break;
 
             default:
@@ -245,43 +291,55 @@ public class Player extends Sprite {
     public void setDirection(Direction direction, float delta) {
 
         this.currentDirection = direction;
-        // System.out.println("CurrentDirection : " + currentDirection);
+        System.out.println("CurrentDirection : " + currentDirection);
         switch (currentDirection) {
             case WALKING_DOWN:
                 currentFrame = walkDown.getKeyFrame(frameTime);
-                
                 break;
 
             case WALKING_UP:
                 currentFrame = walkUp.getKeyFrame(frameTime);
-              
                 break;
 
             case WALKING_LEFT:
                 currentFrame = walkLeft.getKeyFrame(frameTime);
-             
                 break;
+
             case WALKING_RIGHT:
                 currentFrame = walkRight.getKeyFrame(frameTime);
-                
                 break;
 
             case UP:
-
                 currentFrame = standUp.getKeyFrame(frameTime);
                 break;
-            case DOWN:
 
+            case DOWN:
                 currentFrame = standDown.getKeyFrame(frameTime);
                 break;
-            case LEFT:
 
+            case LEFT:
                 currentFrame = standLeft.getKeyFrame(frameTime);
                 break;
-            case RIGHT:
 
+            case RIGHT:
                 currentFrame = standRight.getKeyFrame(frameTime);
                 break;
+
+            case DIG_LEFT: // Digging
+                currentFrame = digLeft.getKeyFrame(frameTime);
+                break;
+            case DIG_RIGHT: // Digging
+                currentFrame = digRight.getKeyFrame(frameTime);
+                break;
+
+            case WATERING_LEFT: // Watering
+                currentFrame = wateringLeft.getKeyFrame(frameTime);
+                break;
+
+            case WATERING_RIGHT: // Watering
+                currentFrame = wateringRight.getKeyFrame(frameTime);
+                break;
+
             default:
                 break;
         }
@@ -290,7 +348,8 @@ public class Player extends Sprite {
     public State getState() {
         return this.state;
     }
-    public Player getPlayer(){
+
+    public Player getPlayer() {
         return this;
     }
 }

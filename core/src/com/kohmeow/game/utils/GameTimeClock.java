@@ -24,6 +24,7 @@ public class GameTimeClock extends Actor {
     private final static Color DAWNCOLOR = new Color(0, 0, .75f, .2f);
 
     private final static Color DARKCOLOR = new Color(0, 0, 0, .6f);
+    
     private final static Color LIGHTCOLOR = new Color(1, 1, 1, 0);
 
     private final static Color DUSKCOLOR = new Color(1, .3f, .67f, .1f);
