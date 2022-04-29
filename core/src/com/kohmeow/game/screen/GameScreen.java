@@ -36,6 +36,7 @@ import com.kohmeow.game.Entity.Plants.Crop;
 import com.kohmeow.game.Entity.Plants.Patch;
 import com.kohmeow.game.Entity.Player.Player;
 import com.kohmeow.game.Items.Item;
+import com.kohmeow.game.UI.Info;
 import com.kohmeow.game.resource.ResourceMannager;
 import com.kohmeow.game.utils.Crosshair;
 import com.kohmeow.game.utils.GameTimeClock;
@@ -75,7 +76,7 @@ public class GameScreen extends ScreenAdapter {
 
     private Texture box;
     private Texture border;
-    private Texture info;
+   
 
     public int numCrops;
     public int numPatch;
@@ -106,6 +107,8 @@ public class GameScreen extends ScreenAdapter {
 
     public int numCrosshair;
     private Array<Crosshair> Crosshairs;
+
+    private Info info;
 
     private Item waterPot;
     private Item shovel;
@@ -148,6 +151,8 @@ public class GameScreen extends ScreenAdapter {
         money = 1000;
 
         SaveController = new SaveController();
+
+       
 
         cam = new OrthographicCamera();
         gameView = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), cam);
@@ -192,7 +197,7 @@ public class GameScreen extends ScreenAdapter {
         rm = new ResourceMannager();
         box = rm.getTexture("UI/Box.png");
         border = rm.getTexture("UI/Crosshair.gif");
-        info = rm.getTexture("UI/info.png");
+ 
 
         waterPot = new Item("WaterPot", "tools");
         shovel = new Item("Shovel", "tools");
@@ -228,6 +233,9 @@ public class GameScreen extends ScreenAdapter {
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(controller);
         Gdx.input.setInputProcessor(inputMultiplexer);
+
+
+        info = new Info(game.batch, cam, font_info);
 
         music = rm.musicTheme;
         music.setLooping(true);
@@ -393,20 +401,7 @@ public class GameScreen extends ScreenAdapter {
             }
 
         }
-        game.batch.draw(info, (cam.position.x) - (cam.viewportWidth / 4),
-                (cam.position.y) + (cam.viewportHeight / 3 * (cam.zoom / 2) + 20), 230, 70);
-
-        font_info.draw(game.batch, String.format(" Days: %d/%d", currentDays, totalDays),
-                (cam.position.x) - (cam.viewportWidth / 4) + 30,
-                (cam.position.y) + 135);
-
-        font_info.draw(game.batch, String.format("Money: %d $", money),
-                (cam.position.x) - (cam.viewportWidth / 4) + 30,
-                (cam.position.y) + 110);
-
-        font_info.draw(game.batch, String.format("Time: %s", time),
-                (cam.position.x) - (cam.viewportWidth / 4) + 115,
-                (cam.position.y) + 135);
+        info.draw(currentDays, totalDays, money, time);
 
         // Draw Player
 
