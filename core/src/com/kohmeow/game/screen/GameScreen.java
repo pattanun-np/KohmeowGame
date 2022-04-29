@@ -34,6 +34,7 @@ import com.kohmeow.game.Entity.Plants.Patch;
 import com.kohmeow.game.Entity.Player.Player;
 import com.kohmeow.game.Items.Item;
 import com.kohmeow.game.UI.HudInventory;
+import com.kohmeow.game.UI.HudItem;
 import com.kohmeow.game.UI.Info;
 import com.kohmeow.game.resource.ResourceMannager;
 import com.kohmeow.game.utils.Crosshair;
@@ -108,6 +109,7 @@ public class GameScreen extends ScreenAdapter {
 
     private Info info;
     private HudInventory hudInventory;
+    private HudItem hudItem;
 
     private Item waterPot;
     private Item shovel;
@@ -200,8 +202,8 @@ public class GameScreen extends ScreenAdapter {
         sickle = new Item("Sickle", "tools");
 
         carrotSeed = new Item("CarrotSeed", "plants_seed", 20);
-        cornSeed = new Item("CornSeed", "plants_seed", 0);
-        wheatSeed = new Item("WheatSeed", "plants_seed", 0);
+        cornSeed = new Item("CornSeed", "plants_seed", 10);
+        wheatSeed = new Item("WheatSeed", "plants_seed", 10);
         potatoSeed = new Item("PotatoSeed", "plants_seed", 10);
 
         carrot = new Item("Carrot", "plants_product", 0);
@@ -231,6 +233,7 @@ public class GameScreen extends ScreenAdapter {
 
         info = new Info(game.batch, cam, font_info, rm);
         hudInventory = new HudInventory(game.batch, cam, font_name, rm);
+        hudItem = new HudItem(game.batch, cam, font_name, rm);
 
         music = rm.musicTheme;
         music.setLooping(true);
@@ -351,7 +354,7 @@ public class GameScreen extends ScreenAdapter {
         for (int j = 0; j < numPatch; j++) {
 
             game.batch.draw(patchs.get(j).getCurrentFrame(), patchs.get(j).getFrameSprite().getX(),
-                    patchs.get(j).getFrameSprite().getY()-6);
+                    patchs.get(j).getFrameSprite().getY());
 
         }
 
@@ -364,20 +367,16 @@ public class GameScreen extends ScreenAdapter {
 
         float x = (mousePos.x - 16);
         float y = (mousePos.y - 16);
-        game.batch.setColor(10, 100, 1, 0.5f);
+
+        game.batch.setColor(255, 255, 255, 0.5f);
         game.batch.draw(border, x, y);
         game.batch.setColor(Color.WHITE);
-        // Draw Item On Player
-        font_name.draw(game.batch, String.format("%s", currentItem.getName()),
-                currentPlayerSprite.getX() + 16,
-                currentPlayerSprite.getY() + 96);
-        game.batch.draw(currentItem.getTextureRegion(), currentPlayerSprite.getX() + 16,
-                currentPlayerSprite.getY() + 64, 24, 24);
 
         // System.out.println("Select Item: " + currentItem.getName());
 
-        info.draw(currentDays, totalDays, money, time);
-        hudInventory.draw(items, currentItem, font);
+        info.draw(currentDays, totalDays, money, time); // Draw info
+        hudInventory.draw(items, currentItem, font); // Draw inventory
+        hudItem.draw(currentPlayerSprite, currentItem, font); // Draw item
 
         // Draw Player
 
@@ -389,6 +388,13 @@ public class GameScreen extends ScreenAdapter {
         Gdx.gl20.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        // shapeRenderer.setColor(Color.BLACK);
+        // for (int j = 0; j < numPatch; j++) {
+
+        //     shapeRenderer.rect(patchs.get(j).getFrameSprite().getX(), patchs.get(j).getFrameSprite().getY(),
+        //             patchs.get(j).getFrameSprite().getWidth(), patchs.get(j).getFrameSprite().getHeight());
+
+        // }
         shapeRenderer.setColor(clock.getAmbientLighting());
 
         Matrix4 mat = cam.combined.cpy();
@@ -401,12 +407,10 @@ public class GameScreen extends ScreenAdapter {
         Gdx.gl20.glDisable(GL20.GL_BLEND);
         game.batch.setProjectionMatrix(mat);
         shapeRenderer.setColor(Color.WHITE);
-        viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        gameView.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        stage.act(delta);
 
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         gameView.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        stage.act(delta);
 
     }
 
@@ -447,10 +451,16 @@ public class GameScreen extends ScreenAdapter {
         numCrops--;
     }
 
+    // public int getCurrentCropIndex(){
+        
+    // }
+
     public void addPatch(Patch patch) {
         patchs.add(patch);
         numPatch++;
     }
+
+ 
 
     public void removePatch(int index) {
         patchs.removeIndex(index);
@@ -474,17 +484,20 @@ public class GameScreen extends ScreenAdapter {
 
     }
 
-    public void addProduct(Item item, int amount) {
-        // item.addAmount();
+    public void addProduct(String name, int amount) {
+        for (int i = 0; i < items.size; i++) {
+            if (items.get(i).getName() == name) {
+                items.get(i).addAmount(amount);
+            }
+
+        }
     }
 
     public void removeSeed(String name) {
         for (int i = 0; i < items.size; i++) {
             if (items.get(i).getName() == name) {
                 items.get(i).removeAmount(1);
-                if (items.get(i).getNum() == 0) {
-                    items.removeIndex(i);
-                }
+                
             }
 
         }

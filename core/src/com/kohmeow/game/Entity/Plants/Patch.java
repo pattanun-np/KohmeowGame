@@ -14,6 +14,8 @@ public class Patch extends Sprite {
     private Sprite framSprite;
     private TextureRegion currentFrame;
 
+    private int crop_id;
+
     private Crop crop;
     private String type;
 
@@ -25,6 +27,7 @@ public class Patch extends Sprite {
     private Rectangle boundingBox;
 
     public Patch(float x, float y) {
+
 
         this.rm = new ResourceMannager();
 
@@ -105,21 +108,6 @@ public class Patch extends Sprite {
 
     public void setWatered() {
         isWatered = true;
-        if (this.crop != null) {
-            crop.setWatered(true);
-        }
-
-    }
-
-    public TextureRegion getCurrentFrame() {
-        return currentFrame;
-    }
-
-    public Sprite getFrameSprite() {
-        return this.frameSprite;
-    }
-
-    public boolean isWatered() {
 
         if (type.equals("dirt")) {
             if (isWatered) {
@@ -137,11 +125,28 @@ public class Patch extends Sprite {
             }
 
         }
+        if (this.crop != null) {
+            crop.setWatered(true);
+        }
+
+    }
+
+    public TextureRegion getCurrentFrame() {
+        return currentFrame;
+    }
+
+    public Sprite getFrameSprite() {
+        return this.frameSprite;
+    }
+
+    public boolean getWatered() {
+
         return isWatered;
     }
 
-    public void Plant(Crop crop) {
+    public void Plant(Crop crop, int ID) {
         this.crop = crop;
+        this.crop_id = ID;
 
     }
 
@@ -169,5 +174,13 @@ public class Patch extends Sprite {
 
     public Patch getPatch() {
         return this;
+    }
+
+    public Crop getCrop() {
+        return this.crop;
+    }
+
+    public int getCropID(){
+        return this.crop_id;
     }
 }

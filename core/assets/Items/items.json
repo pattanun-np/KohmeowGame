@@ -29,7 +29,7 @@
         "CarrotSeed": {
             "productName": "Carrot",
             "return_amount": 1,
-            "GrowthStage": 4,
+        
             "desc": "A carrot",
             "growthStageDuration": 2,
             "price": 10,
@@ -45,6 +45,7 @@
             "return_amount": 1,
             "desc": "A corn",
             "growthStageDuration": 3,
+   
             "price": 5,
             "x": 1,
             "y": 2,
@@ -56,8 +57,9 @@
         "PotatoSeed": {
             "productName": "Potato",
             "return_amount": 3,
-            "GrowthStage": 4,
+            
             "desc": "A potato",
+      
             "growthStageDuration": 3,
             "price": 10,
             "x": 2,
@@ -70,7 +72,7 @@
         "WheatSeed": {
             "productName": "Wheat",
             "return_amount": 4,
-            "GrowthStage": 4,
+            "TotalGrowthStage": 4,
             "growthStageDuration":1,
             "desc": "A wheat",
             "price": 5,

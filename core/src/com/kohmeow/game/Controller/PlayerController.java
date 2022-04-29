@@ -2,13 +2,9 @@ package com.kohmeow.game.Controller;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
-import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
-
 import com.kohmeow.game.KohMeowGame;
 import com.kohmeow.game.Entity.Plants.Crop;
 import com.kohmeow.game.Entity.Plants.Patch;
@@ -160,61 +156,34 @@ public class PlayerController implements InputProcessor {
     /**
      * 
      * @param coords
-     * @return isPatch is click area is patch;
-     */
-    public boolean isClickOnPatch(Vector3 coords) {
-        Boolean isClick = false;
-        for (int i = 0; i < screen.numPatch; i++) {
-            isClick = screen.patchs.get(i).getFrameSprite().getBoundingRectangle().contains(coords.x, coords.y);
-
-        }
-
-        return isClick;
-    }
-
-    /**
-     * 
-     * @param coords
      */
     public void createPatch(Vector3 coords) {
+        boolean overlaps = false;
         TiledMapTileLayer ground = (TiledMapTileLayer) screen.getMap().getLayers().get("Ground");
 
         TiledMapTileLayer.Cell cell = ground.getCell(Math.round(coords.x * KohMeowGame.UNIT_SCALE),
                 Math.round(coords.y * KohMeowGame.UNIT_SCALE));
 
-        if (cell != null) {
+        for (int i = 0; i < screen.numPatch; i++) {
+            overlaps = screen.patchs.get(i).getFrameSprite().getBoundingRectangle()
+                    .overlaps(new Rectangle(coords.x, coords.y, 32 / 2, 32 / 2));
+
+        }
+        System.out.println(String.format("Debug: Is Overlaps %b", overlaps));
+        if (cell != null && overlaps == false) {
+
             if (cell.getTile().getId() == 99) {
                 patch = new Patch(coords.x, coords.y, "grass");
                 screen.addPatch(patch);
                 rm.dirtSfx.play(.3f);
-            }
-            if (cell.getTile().getId() == 110) {
+            } else if (cell.getTile().getId() == 110) {
                 patch = new Patch(coords.x, coords.y, "dirt");
                 screen.addPatch(patch);
                 rm.dirtSfx.play(.3f);
             }
+
         }
 
-    }
-
-    /**
-     * @param coords
-     */
-    public void removePatch(Vector3 coords) {
-        System.out.println("Remove Patch");
-        screen.removeCrop(IndexOfPatch(coords));
-        screen.removePatch(IndexOfPatch(coords));
-        rm.dirtSfx.play();
-    }
-
-    public int IndexOfPatch(Vector3 coords) {
-        for (int i = 0; i < screen.numPatch; i++) {
-            patch = screen.patchs.get(i).contains(coords.x, coords.y);
-            if (patch != null) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     /**
@@ -222,15 +191,15 @@ public class PlayerController implements InputProcessor {
      *
      */
     public void waterPatch(Vector3 coords) {
+        Patch patch = null;
         for (int i = 0; i < screen.numPatch; i++) {
             if (screen.patchs.get(i).getFrameSprite().getBoundingRectangle().contains(coords.x, coords.y)) {
                 patch = screen.patchs.get(i).getPatch();
-                if (patch != null) {
-                    if (!patch.isWatered()) {
-                        patch.setWatered();
-                        rm.waterSfx.play();
+                System.out.println(patch);
+                if (patch != null && !patch.getWatered()) {
 
-                    }
+                    patch.setWatered();
+
                 }
             }
         }
@@ -250,7 +219,7 @@ public class PlayerController implements InputProcessor {
                     if (patch.IsEmpty()) {
                         if (screen.getNumSeed(name) > 0) {
                             Crop crop = new Crop(name, coords.x, coords.y);
-                            patch.Plant(crop);
+                            patch.Plant(crop, screen.numCrops);
                             screen.addCrop(crop);
                             screen.removeSeed(name);
                             rm.dirtSfx.play();
@@ -263,26 +232,31 @@ public class PlayerController implements InputProcessor {
 
     }
 
-    /**
-     * 
-     * @param coords
-     * @return
-     */
-    public boolean IsPlantsabled(Vector3 coords) {
-        TiledMapTileLayer ground = (TiledMapTileLayer) screen.getMap().getLayers().get("Ground");
+    public void havest(Vector3 coords) {
+        Patch patch = null;
+        
+        for (int i = 0; i < screen.numPatch; i++) {
+            if (screen.patchs.get(i).getFrameSprite().getBoundingRectangle().contains(coords.x, coords.y)) {
+                patch = screen.patchs.get(i).getPatch();
+                if (patch != null && !patch.IsEmpty()) {
 
-        TiledMapTileLayer.Cell cell = ground.getCell(Math.round(coords.x * KohMeowGame.UNIT_SCALE),
-                Math.round(coords.y * KohMeowGame.UNIT_SCALE));
-        if (cell != null) {
-            // System.out.println("Cell: " + cell.getTile().getId());
-            if (cell.getTile().getId() == 99) {
-                return true;
-            } else {
-                return false;
+                    String plantName = patch.getCrop().getName();
+                    int plantID = patch.getCropID();
+                    int return_amount = patch.getCrop().getRetrunAmount();
+                    String return_product = patch.getCrop().getReturn();
+                    int growthStage = patch.getCrop().getGrowthStage();
+
+                    if(growthStage == 3 ){
+                        screen.removeCrop(plantID);
+                        screen.addProduct(return_product, return_amount);
+                        patch.unPlant();
+                        rm.dirtSfx.play();
+                    }
+
+                }
             }
-        } else {
-            return false;
         }
+        
     }
 
     @Override
@@ -298,8 +272,8 @@ public class PlayerController implements InputProcessor {
 
         System.out.println(cell.getTile().getId());
 
-        if (Math.abs(Player.getPlayerCenterX() - coords.x) < 30
-                && Math.abs(Player.getPlayerCenterY() - coords.y) < 30) {
+        if (Math.abs(Player.getPlayerCenterX() - coords.x) < 100
+                && Math.abs(Player.getPlayerCenterY() - coords.y) < 100) {
 
             if (button == Input.Buttons.LEFT) {
                 switch (currentItemType) {
@@ -309,16 +283,22 @@ public class PlayerController implements InputProcessor {
                         break;
                     case "tools":
                         if (currentItem.equals("WaterPot")) {
-                            wateringLeft = true;
-                            waterPatch(coords);
+                            if (player.getDirection() == Player.Direction.RIGHT) {
+                                wateringRight = true;
+                                waterPatch(coords);
+                            } else if (player.getDirection() == Player.Direction.LEFT) {
+                                wateringLeft = true;
+                                waterPatch(coords);
+                            }
 
                         }
                         if (currentItem.equals("Shovel")) {
 
-                            if (!isClickOnPatch(coords)) {
-                                createPatch(coords);
-                            }
+                            createPatch(coords);
 
+                        }
+                        if (currentItem.equals("Sickle")) {
+                            havest(coords);
                         }
                         break;
 
@@ -386,6 +366,8 @@ public class PlayerController implements InputProcessor {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        wateringLeft = false;
+        wateringRight = false;
         return false;
     }
 
@@ -398,9 +380,7 @@ public class PlayerController implements InputProcessor {
     public boolean mouseMoved(int screenX, int screenY) {
         Vector3 coords = screen.getCam().unproject(tp.set(screenX, screenY, 0));
 
-        if (!isClickOnPatch(coords)) {
-            screen.SetmousePos(coords);
-        }
+        screen.SetmousePos(coords);
 
         return false;
     }
@@ -413,7 +393,7 @@ public class PlayerController implements InputProcessor {
 
         if (amount2 == 1) {
 
-            if (tempIndex < 8) {
+            if (tempIndex < 10) {
                 tempIndex += 1;
             } else {
                 tempIndex = 0;
@@ -423,7 +403,7 @@ public class PlayerController implements InputProcessor {
             if (tempIndex > 0) {
                 tempIndex -= 1;
             } else {
-                tempIndex = 8;
+                tempIndex = 10;
             }
 
         }
@@ -464,11 +444,19 @@ public class PlayerController implements InputProcessor {
             player.move(Player.Direction.WALKING_LEFT, delta);
             player.setState(Player.State.WALKING);
             player.setDirection(Player.Direction.WALKING_LEFT, delta);
-        } else if (jump) {
-            player.move(Player.Direction.JUMP, delta);
-            player.setState(Player.State.IDLE);
+        } else if (wateringLeft) {
 
-        } else if (!up && !down && !left && !right) {
+            player.setState(Player.State.WATERING);
+            player.setDirection(Player.Direction.WATERING_LEFT, delta);
+
+        } else if (wateringRight) {
+
+            player.setState(Player.State.WATERING);
+            player.setDirection(Player.Direction.WATERING_RIGHT, delta);
+
+        }
+
+        else if (!up && !down && !left && !right) {
             player.setState(Player.State.IDLE);
 
             if (player.getDirection() == Player.Direction.WALKING_UP && player.getState() == Player.State.IDLE) {
@@ -489,19 +477,6 @@ public class PlayerController implements InputProcessor {
                     && player.getState() == Player.State.IDLE) {
                 // System.out.println("IDLE LEFT");
                 player.setDirection(Player.Direction.LEFT, delta);
-            }
-        } else if (!up && !down && !left && !right) {
-            player.setState(Player.State.IDLE);
-
-            if (player.getDirection() == Player.Direction.WALKING_LEFT && player.getState() == Player.State.WATERING) {
-                // System.out.println("IDLE UP");
-                player.setDirection(Player.Direction.WATERING_LEFT, delta);
-
-            } else if (player.getDirection() == Player.Direction.WALKING_RIGHT
-                    && player.getState() == Player.State.WALKING) {
-                // System.out.println("IDLE DOWN");
-                player.setDirection(Player.Direction.WATERING_RIGHT, delta);
-
             }
         }
 
