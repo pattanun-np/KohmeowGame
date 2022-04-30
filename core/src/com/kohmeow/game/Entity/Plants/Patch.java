@@ -95,6 +95,9 @@ public class Patch extends Sprite {
     public void addDay() {
 
         this.isWatered = false;
+        if (this.crop != null) {
+            crop.setWatered(false);
+        }
 
     }
 

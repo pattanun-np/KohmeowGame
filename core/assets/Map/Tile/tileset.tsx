@@ -55,16 +55,25 @@
    <wangtile tileid="299" wangid="0,1,0,0,0,0,0,1"/>
    <wangtile tileid="300" wangid="0,0,0,0,0,0,0,1"/>
   </wangset>
-  <wangset name="WaterRift" type="corner" tile="236">
+  <wangset name="WaterRift" type="corner" tile="271">
    <wangcolor name="" color="#ff0000" tile="-1" probability="1"/>
    <wangtile tileid="234" wangid="0,1,0,0,0,1,0,1"/>
    <wangtile tileid="235" wangid="0,1,0,0,0,0,0,1"/>
    <wangtile tileid="236" wangid="0,1,0,1,0,0,0,1"/>
+   <wangtile tileid="238" wangid="0,0,0,1,0,0,0,0"/>
+   <wangtile tileid="239" wangid="0,0,0,1,0,1,0,0"/>
+   <wangtile tileid="240" wangid="0,0,0,0,0,1,0,0"/>
    <wangtile tileid="266" wangid="0,0,0,0,0,1,0,1"/>
    <wangtile tileid="268" wangid="0,1,0,1,0,0,0,0"/>
+   <wangtile tileid="270" wangid="0,1,0,1,0,0,0,0"/>
+   <wangtile tileid="271" wangid="0,1,0,1,0,1,0,1"/>
+   <wangtile tileid="272" wangid="0,0,0,0,0,1,0,1"/>
    <wangtile tileid="298" wangid="0,0,0,1,0,1,0,1"/>
    <wangtile tileid="299" wangid="0,0,0,1,0,1,0,0"/>
    <wangtile tileid="300" wangid="0,1,0,1,0,1,0,0"/>
+   <wangtile tileid="302" wangid="0,1,0,0,0,0,0,0"/>
+   <wangtile tileid="303" wangid="0,1,0,0,0,0,0,1"/>
+   <wangtile tileid="304" wangid="0,0,0,0,0,0,0,1"/>
   </wangset>
  </wangsets>
 </tileset>

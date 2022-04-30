@@ -2,13 +2,13 @@
     "plants_product": {
         "Carrot": {
             "desc": "A carrot",
-            "price": 10,
+            "price": 40,
             "x": 0,
             "y": 1
         },
         "Corn": {
             "desc": "A corn",
-            "price": 5,
+            "price": 50,
             "x": 1,
             "y": 1
         },
@@ -60,7 +60,7 @@
             
             "desc": "A potato",
       
-            "growthStageDuration": 3,
+            "growthStageDuration": 2,
             "price": 10,
             "x": 2,
             "y": 2,
@@ -72,7 +72,7 @@
         "WheatSeed": {
             "productName": "Wheat",
             "return_amount": 4,
-            "TotalGrowthStage": 4,
+ 
             "growthStageDuration":1,
             "desc": "A wheat",
             "price": 5,
