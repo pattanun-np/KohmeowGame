@@ -1,33 +1,30 @@
 package com.kohmeow.game.screen;
 
-import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.kohmeow.game.KohMeowGame;
+
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.kohmeow.game.KohMeowGame;
 import com.kohmeow.game.resource.ResourceMannager;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
 public class ManuScreen implements Screen {
 
@@ -40,7 +37,11 @@ public class ManuScreen implements Screen {
  private Table table;
 
  private ResourceMannager rm;
- private Music music;
+ private Music music,sfx;
+ private FreeTypeFontGenerator generator;
+ private FreeTypeFontGenerator.FreeTypeFontParameter parameter;
+ private BitmapFont font;
+
 
  public ManuScreen (final KohMeowGame game) {
   this.game = game;
@@ -51,10 +52,14 @@ public class ManuScreen implements Screen {
   background = new Texture("UI/BG.png");
 
   rm = new ResourceMannager();
-  music = rm.mainMenu;
+  music = rm.musicTheme;
   music.setLooping(true);
-  music.setVolume(.2f);
+  music.setVolume(.1f);
   music.play();
+  sfx = rm.mainMenu;
+  sfx.setLooping(true);
+  sfx.setVolume(.2f);
+  sfx.play();
 
   Texture startbTexture = new Texture(Gdx.files.internal("UI/bStart.png"));
   Texture startbTexturePressed = new Texture(Gdx.files.internal("UI/bStartPress.png"));
@@ -92,10 +97,22 @@ public class ManuScreen implements Screen {
   final Table howtoplay = new Table();
   howtoplayinfo.setPosition(58,62);
   backButton.setPosition(1092,534);
+  Label.LabelStyle font = new Label.LabelStyle(this.create(), Color.WHITE);
+  font.font.getData().setScale(2.5F);
+  final Label howToInfo = new Label(
+          "How to play:\n\n" +
+          "-Move around using arrow keys or WASD\n\n" +
+          "-Cycle crop seeds and tools using the mouse wheel or number keys\n\n" +
+          "-When seeds are equipped, click on any grass\n\n to plant crops (must have seeds)\n\n"+
+          "-Click on full grown crops to harvest for cash\n\n" +
+          "-Seeds will randomly collected after crops had been harvested\n\n" +
+          "", font);
+  howToInfo.setPosition(170,140);
   howtoStage.addActor(howtoplay);
   howtoplay.center();
   howtoplay.setFillParent(true);
   howtoplay.addActor(howtoplayinfo);
+  howtoplay.addActor(howToInfo);
   howtoplay.addActor(backButton);
   howtoplay.setVisible(false);
 
@@ -124,11 +141,6 @@ public class ManuScreen implements Screen {
    }
 
   });
-
-
-
-
-
 
  }
 
@@ -180,5 +192,20 @@ public class ManuScreen implements Screen {
   mainStage.dispose();
   howtoStage.dispose();
   music.dispose();
+  font.dispose();
+ }
+
+ public BitmapFont create() {
+  generator = new FreeTypeFontGenerator(Gdx.files.internal("font/PixelFJVerdana12pt.ttf"));
+
+  parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+  parameter.size = 5;
+  parameter.color = Color.BROWN;
+  parameter.borderWidth = 1;
+  parameter.borderStraight = false;
+  parameter.borderColor = new Color(99,38,38,1);
+
+  font = generator.generateFont(parameter);
+  return font;
  }
 }

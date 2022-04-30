@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.kohmeow.game.resource.ResourceMannager;
@@ -30,6 +29,7 @@ public class Crop extends Sprite {
     private TextureRegion[][] textureFrames;
     private Array<TextureRegion> cropFrames;
     public TextureRegion dirtFrame;
+    public int ID;
 
     private ResourceMannager rm;
 
@@ -39,7 +39,7 @@ public class Crop extends Sprite {
     private String ReturnProduct;
     private int ReturnAmount;
 
-    public Crop(String name, float x, float y) {
+    public Crop(String name, float x, float y,int ID) {
 
         this.rm = new ResourceMannager();
 
@@ -61,7 +61,7 @@ public class Crop extends Sprite {
         frameSprite = new Sprite(textureFrames[0][0], 0, 0, 32, 32);
         frameSprite.setX(Math.round(centerX / 32) * 32);
         frameSprite.setY(Math.round(centerY / 32) * 32);
-
+        this.ID = ID;
         loadinfo(name);
 
     }
@@ -99,7 +99,7 @@ public class Crop extends Sprite {
         if (daysNotWatered == 2) {
             isDead = true;
         }
-        this.isWatered = false;
+    
         checkGrowth();
 
 
@@ -158,5 +158,8 @@ public class Crop extends Sprite {
 
     public int getRetrunAmount() {
         return ReturnAmount;
+    }
+    public int getID(){
+        return ID;
     }
 }

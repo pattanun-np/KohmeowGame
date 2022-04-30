@@ -198,9 +198,11 @@ public class Player extends Sprite {
     public void update(float delta) {
         // System.out.println(String.format("Frame Time :%f Delta :%f", frameTime,
         // delta));
-        if (state == State.WALKING || state == State.WATERING || state == State.DIGGING || state == State.IDLE) {
+        if (state == State.WALKING || state == State.WATERING || state == State.DIGGING ) {
             frameTime = (frameTime + delta) % 5;
 
+        }else{
+            frameTime = 0;
         }
 
     

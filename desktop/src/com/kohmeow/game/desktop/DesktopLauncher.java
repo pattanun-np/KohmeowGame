@@ -1,6 +1,7 @@
 package com.kohmeow.game.desktop;
 
 import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
 // import com.badlogic.gdx.Files;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
@@ -15,11 +16,12 @@ public class DesktopLauncher {
 		config.height = 720;
 		config.vSyncEnabled = false;
 		config.resizable = false;
+		config.addIcon("Icon/logoMac.png", Files.FileType.Internal);
 		Application app = new LwjglApplication(new KohMeowGame(), config);
 		Gdx.app = app;
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
-		// config.addIcon("icontest.png", Files.FileType.Internal);
+
 
 	}
 }
