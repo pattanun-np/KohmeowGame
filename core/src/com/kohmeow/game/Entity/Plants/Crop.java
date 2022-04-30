@@ -99,7 +99,7 @@ public class Crop extends Sprite {
         if (daysNotWatered == 2) {
             isDead = true;
         }
-        this.isWatered = false;
+    
         checkGrowth();
 
 
