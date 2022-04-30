@@ -5,15 +5,19 @@ package com.kohmeow.game.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -188,6 +192,7 @@ public class ManuScreen implements Screen {
   mainStage.dispose();
   howtoStage.dispose();
   music.dispose();
+  font.dispose();
  }
 
  public BitmapFont create() {
@@ -197,7 +202,8 @@ public class ManuScreen implements Screen {
   parameter.size = 5;
   parameter.color = Color.BROWN;
   parameter.borderWidth = 1;
-  parameter.borderColor = Color.WHITE;
+  parameter.borderStraight = false;
+  parameter.borderColor = new Color(99,38,38,1);
 
   font = generator.generateFont(parameter);
   return font;
