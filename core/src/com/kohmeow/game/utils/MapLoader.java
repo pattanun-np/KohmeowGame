@@ -12,18 +12,18 @@ public class MapLoader {
     private Vector2 playerSpawnPoint;
     private TiledMap map;
 
-
-    public MapLoader(GameScreen screen){
+    public MapLoader(GameScreen screen) {
 
         map = screen.getMap();
         playerSpawnPoint = new Vector2();
 
-        for (MapObject object : map.getLayers().get("Player").getObjects()){
+        for (MapObject object : map.getLayers().get("Player").getObjects()) {
             Rectangle rectangle = ((RectangleMapObject) object).getRectangle();
             playerSpawnPoint.set(rectangle.x, rectangle.y);
         }
     }
-    public  Vector2 getPlayerSpawnPoint(){
-        return  playerSpawnPoint;
+
+    public Vector2 getPlayerSpawnPoint() {
+        return playerSpawnPoint;
     }
 }
