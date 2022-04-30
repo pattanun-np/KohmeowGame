@@ -449,8 +449,8 @@ public class GameScreen extends ScreenAdapter {
                     IndexToRemove = i;
                 }
             }
-            numCrops--;
             crops.removeIndex(IndexToRemove);
+            numCrops--;
         }
 
     }

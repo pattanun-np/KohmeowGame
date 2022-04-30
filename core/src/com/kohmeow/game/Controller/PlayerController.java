@@ -255,9 +255,10 @@ public class PlayerController implements InputProcessor {
                     if (growthStage == 3) {
 
                         screen.removeCrop(plantID, return_product, return_amount);
-                        screen.addProduct(return_product, return_amount, plantName);
+                        
                         patch.unPlant();
                         rm.dirtSfx.play();
+                        screen.addProduct(return_product, return_amount, plantName); 
                     }
 
                 }
