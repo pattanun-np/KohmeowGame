@@ -43,7 +43,7 @@ public class Item {
         this.jsonReader = new JsonReader();
 
         this.type = type;
-        
+
         this.nums = init_num;
 
         loadinfo(name, type);
@@ -62,7 +62,7 @@ public class Item {
             int index_y = info.get(name).getInt("y");
             this.description = info.get(name).getString("desc");
             this.textureRegion = texture[index_y][index_x];
-
+            this.price = 0;
         } else if (type == "plants_product") {
             int index_x = info.get(name).getInt("x");
             int index_y = info.get(name).getInt("y");
@@ -114,6 +114,10 @@ public class Item {
 
     public String getName() {
         return name;
+    }
+
+    public int getPrice() {
+        return price;
     }
 
     public String getFullDesc() {

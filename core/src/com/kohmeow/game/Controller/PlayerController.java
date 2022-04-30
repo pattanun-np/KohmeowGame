@@ -11,7 +11,7 @@ import com.kohmeow.game.Entity.Plants.Patch;
 import com.kohmeow.game.Entity.Player.Player;
 import com.kohmeow.game.resource.ResourceMannager;
 import com.kohmeow.game.screen.GameScreen;
-import com.kohmeow.game.utils.Crosshair;
+
 import com.kohmeow.game.utils.SaveController;
 
 public class PlayerController implements InputProcessor {
@@ -24,6 +24,7 @@ public class PlayerController implements InputProcessor {
     private boolean down;
     private boolean jump;
     private boolean wateringLeft, wateringRight;
+    private boolean digLeft, digRight;
 
     private boolean toggleInventory;
     private ResourceMannager rm;
@@ -32,7 +33,7 @@ public class PlayerController implements InputProcessor {
     private int tempIndex;
     private SaveController SaveController;
     private Vector3 tp;
-    private Crosshair crosshair;
+
     private Patch patch;
     private TiledMapTileLayer plants_zone;
     private boolean isPatch;
@@ -48,6 +49,9 @@ public class PlayerController implements InputProcessor {
         jump = false;
         wateringLeft = false;
         wateringRight = false;
+        digLeft = false;
+        digRight = false;
+
         toggleInventory = false;
         currentIndex = screen.getCurrentIndex();
         tempIndex = currentIndex;
@@ -167,7 +171,6 @@ public class PlayerController implements InputProcessor {
         for (int i = 0; i < screen.numPatch; i++) {
             overlaps = screen.patchs.get(i).getFrameSprite().getBoundingRectangle()
                     .overlaps(new Rectangle(coords.x, coords.y, 32 / 2, 32 / 2));
-
         }
         System.out.println(String.format("Debug: Is Overlaps %b", overlaps));
         if (cell != null && overlaps == false) {
@@ -176,30 +179,32 @@ public class PlayerController implements InputProcessor {
                 patch = new Patch(coords.x, coords.y, "grass");
                 screen.addPatch(patch);
                 rm.dirtSfx.play(.3f);
+
+                // digLeft = false;
+                // digRight = false;
             } else if (cell.getTile().getId() == 110) {
                 patch = new Patch(coords.x, coords.y, "dirt");
                 screen.addPatch(patch);
                 rm.dirtSfx.play(.3f);
+                // digLeft = false;
+                // digRight = false;
             }
 
         }
 
     }
 
-    /**
-     * @params coords Verctor3
-     *
-     */
+  
+
     public void waterPatch(Vector3 coords) {
         Patch patch = null;
         for (int i = 0; i < screen.numPatch; i++) {
             if (screen.patchs.get(i).getFrameSprite().getBoundingRectangle().contains(coords.x, coords.y)) {
                 patch = screen.patchs.get(i).getPatch();
                 System.out.println(patch);
-                if (patch != null && !patch.getWatered()) {
-
+                if (patch != null && !patch.getWatered() && (!wateringLeft || !wateringRight)) {
                     patch.setWatered();
-
+                    rm.waterSfx.play();
                 }
             }
         }
@@ -208,6 +213,7 @@ public class PlayerController implements InputProcessor {
 
     /**
      * 
+     * @param name
      * @param coords
      */
     public void plant(String name, Vector3 coords) {
@@ -218,7 +224,7 @@ public class PlayerController implements InputProcessor {
                 if (patch != null) {
                     if (patch.IsEmpty()) {
                         if (screen.getNumSeed(name) > 0) {
-                            Crop crop = new Crop(name, coords.x, coords.y);
+                            Crop crop = new Crop(name, coords.x, coords.y, screen.numCrops);
                             patch.Plant(crop, screen.numCrops);
                             screen.addCrop(crop);
                             screen.removeSeed(name);
@@ -234,7 +240,7 @@ public class PlayerController implements InputProcessor {
 
     public void havest(Vector3 coords) {
         Patch patch = null;
-        
+
         for (int i = 0; i < screen.numPatch; i++) {
             if (screen.patchs.get(i).getFrameSprite().getBoundingRectangle().contains(coords.x, coords.y)) {
                 patch = screen.patchs.get(i).getPatch();
@@ -246,9 +252,10 @@ public class PlayerController implements InputProcessor {
                     String return_product = patch.getCrop().getReturn();
                     int growthStage = patch.getCrop().getGrowthStage();
 
-                    if(growthStage == 3 ){
-                        screen.removeCrop(plantID);
-                        screen.addProduct(return_product, return_amount);
+                    if (growthStage == 3) {
+
+                        screen.removeCrop(plantID, return_product, return_amount);
+                        screen.addProduct(return_product, return_amount, plantName);
                         patch.unPlant();
                         rm.dirtSfx.play();
                     }
@@ -256,7 +263,7 @@ public class PlayerController implements InputProcessor {
                 }
             }
         }
-        
+
     }
 
     @Override
@@ -293,8 +300,13 @@ public class PlayerController implements InputProcessor {
 
                         }
                         if (currentItem.equals("Shovel")) {
-
-                            createPatch(coords);
+                            if (player.getDirection() == Player.Direction.RIGHT) {
+                                digRight = true;
+                                createPatch(coords);
+                            } else if (player.getDirection() == Player.Direction.LEFT) {
+                                digLeft = true;
+                                createPatch(coords);
+                            }
 
                         }
                         if (currentItem.equals("Sickle")) {
@@ -308,57 +320,9 @@ public class PlayerController implements InputProcessor {
                 }
                 return true;
             }
-            // if (button == Input.Buttons.RIGHT) {
-            // switch (currentItem) {
-            // case "Shovel":
-            // if (isClickOnPatch(coords)) {
-            // if (isEmptyPatch(coords)) {
-            // if (screen.numPatch > 0 && screen.numCrops > 0) {
-            // removePatch(coords);
-            // return true;
-            // }
-            // return false;
-            // }
-            // }
-            // break;
+            
 
-            // default:
-            // return false;
-
-            // }
-
-            // }
         }
-        // for (int i = 0; i < screen.numCrops; i++) {
-        // if
-        // (screen.getCrops().get(i).getFrameSprite().getBoundingRectangle().contains(coords.x,
-        // coords.y)) {
-        // if (screen.currentItem.getName() == "WaterPot") {
-        // if (screen.patchs.get(j).isWatered()) {
-        // screen.getCrops().get(i).setWatered(true);
-        // // rm.waterSfx.play();
-        // }
-
-        // }
-        // if (screen.getCrops().get(i).getGrowthStage() == 3) {
-
-        // screen.getCrops().removeIndex(i);
-
-        // screen.addMoney(2);
-
-        // screen.numCrops--;
-
-        // return false;
-        // }
-
-        // } else {
-        // return false;
-        // }
-        // }
-
-        // System.out.println(tileSet.putTile(id, tile););
-
-        // System.out.println(cell != null);
 
         return false;
 
@@ -368,6 +332,9 @@ public class PlayerController implements InputProcessor {
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         wateringLeft = false;
         wateringRight = false;
+
+        digLeft = false;
+        digRight = false;
         return false;
     }
 
@@ -444,19 +411,22 @@ public class PlayerController implements InputProcessor {
             player.move(Player.Direction.WALKING_LEFT, delta);
             player.setState(Player.State.WALKING);
             player.setDirection(Player.Direction.WALKING_LEFT, delta);
-        } else if (wateringLeft) {
 
+        } else if (wateringLeft) {
             player.setState(Player.State.WATERING);
             player.setDirection(Player.Direction.WATERING_LEFT, delta);
 
         } else if (wateringRight) {
-
             player.setState(Player.State.WATERING);
             player.setDirection(Player.Direction.WATERING_RIGHT, delta);
+        } else if (digLeft) {
+            player.setState(Player.State.DIGGING);
+            player.setDirection(Player.Direction.DIG_LEFT, delta);
+        } else if (digRight) {
+            player.setState(Player.State.DIGGING);
+            player.setDirection(Player.Direction.DIG_RIGHT, delta);
 
-        }
-
-        else if (!up && !down && !left && !right) {
+        } else if (!up && !down && !left && !right) {
             player.setState(Player.State.IDLE);
 
             if (player.getDirection() == Player.Direction.WALKING_UP && player.getState() == Player.State.IDLE) {

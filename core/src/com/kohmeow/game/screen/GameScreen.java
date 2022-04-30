@@ -20,6 +20,7 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
@@ -37,7 +38,6 @@ import com.kohmeow.game.UI.HudInventory;
 import com.kohmeow.game.UI.HudItem;
 import com.kohmeow.game.UI.Info;
 import com.kohmeow.game.resource.ResourceMannager;
-import com.kohmeow.game.utils.Crosshair;
 import com.kohmeow.game.utils.GameTimeClock;
 import com.kohmeow.game.utils.MapLoader;
 import com.kohmeow.game.utils.SaveController;
@@ -104,8 +104,6 @@ public class GameScreen extends ScreenAdapter {
     private int money;
 
     public int numCrosshair;
-
-    private Array<Crosshair> Crosshairs;
 
     private Info info;
     private HudInventory hudInventory;
@@ -298,7 +296,6 @@ public class GameScreen extends ScreenAdapter {
         return checkCollision(boundingBox, objectLayer);
     }
 
-
     @Override
     public void render(float delta) {
 
@@ -327,6 +324,9 @@ public class GameScreen extends ScreenAdapter {
         }
         if (!isCollision(Player.getBoundingBox()))
             player.setCurrentToNext();
+
+        if(isShop(player.getBoundingRectangle()))
+            System.out.println("Shop");
 
         controller.update(delta);
 
@@ -389,13 +389,7 @@ public class GameScreen extends ScreenAdapter {
         Gdx.gl20.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        // shapeRenderer.setColor(Color.BLACK);
-        // for (int j = 0; j < numPatch; j++) {
 
-        //     shapeRenderer.rect(patchs.get(j).getFrameSprite().getX(), patchs.get(j).getFrameSprite().getY(),
-        //             patchs.get(j).getFrameSprite().getWidth(), patchs.get(j).getFrameSprite().getHeight());
-
-        // }
         shapeRenderer.setColor(clock.getAmbientLighting());
 
         Matrix4 mat = cam.combined.cpy();
@@ -447,29 +441,28 @@ public class GameScreen extends ScreenAdapter {
         numCrops++;
     }
 
-    public void removeCrop(int currentIndex) {
-        crops.removeIndex(currentIndex);
-        numCrops--;
-    }
+    public void removeCrop(int ID, String return_product, int return_amount) {
+        int IndexToRemove = 0;
+        if (numCrops > 0) {
+            for (int i = 0; i < numCrops; i++) {
+                if (crops.get(i).getID() == ID) {
+                    IndexToRemove = i;
+                }
+            }
+            numCrops--;
+            crops.removeIndex(IndexToRemove);
+        }
 
-    // public int getCurrentCropIndex(){
-        
-    // }
+    }
 
     public void addPatch(Patch patch) {
         patchs.add(patch);
         numPatch++;
     }
 
- 
-
     public void removePatch(int index) {
         patchs.removeIndex(index);
         numPatch--;
-    }
-
-    public void addCrosshiar(com.kohmeow.game.utils.Crosshair crosshair) {
-        Crosshairs.add(crosshair);
     }
 
     public Array<Crop> getCrops() {
@@ -484,21 +477,44 @@ public class GameScreen extends ScreenAdapter {
         money += price;
 
     }
+    public boolean isShop(Rectangle boundingBox) {
+        Rectangle rectangle = new Rectangle();
+        for (MapObject shop: map.getLayers().get("Shop").getObjects()) {
+            rectangle = ((RectangleMapObject) shop).getRectangle();
+            
+        }
+        return rectangle.overlaps(boundingBox);
+    }
 
-    public void addProduct(String name, int amount) {
+    public void addProduct(String name, int amount, String seedName) {
+        System.out.println(name + ":" + amount);
         for (int i = 0; i < items.size; i++) {
-            if (items.get(i).getName() == name) {
+            System.out.println(
+                    String.format("%s %s => %b", items.get(i).getName(), name, items.get(i).getName().equals(name)));
+            if (items.get(i).getName().equals(name)) {
                 items.get(i).addAmount(amount);
+                System.out.println("Added");
+                int random = MathUtils.random.nextInt(3);
+                addSeed(seedName, random);
             }
 
         }
     }
 
+    public void addSeed(String name, int amount) {
+        for (int i = 0; i < items.size; i++) {
+            if (items.get(i).getName() == name) {
+                items.get(i).addAmount(amount);
+
+            }
+        }
+    }
+
     public void removeSeed(String name) {
+
         for (int i = 0; i < items.size; i++) {
             if (items.get(i).getName() == name) {
                 items.get(i).removeAmount(1);
-                
             }
 
         }
@@ -518,6 +534,23 @@ public class GameScreen extends ScreenAdapter {
 
     public void GameSave() {
         SaveController.saveGame(money, crops);
+
+    }
+
+    public void buySeed(String name) {
+        int price = 0;
+        for (int i = 0; i < items.size; i++) {
+            if (items.get(i).getName() == name) {
+                price = items.get(i).getPrice();
+
+            }
+
+        }
+
+        if (price <= money) {
+            money -= price;
+            addSeed(name, 2);
+        }
 
     }
 
