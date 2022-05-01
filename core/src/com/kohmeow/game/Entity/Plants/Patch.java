@@ -26,13 +26,16 @@ public class Patch extends Sprite {
 
     private Rectangle boundingBox;
 
-    public Patch(float x, float y) {
+    private int ID;
 
+    public Patch(float x, float y, int ID) {
+        this.ID = ID;
 
         this.rm = new ResourceMannager();
 
         this.position = new Vector2(x, y);
         this.isWatered = false;
+    
         centerX = x - 16;
         centerY = y - 16;
 
@@ -60,7 +63,9 @@ public class Patch extends Sprite {
 
     }
 
-    public Patch(float x, float y, String type) {
+    public Patch(float x, float y, String type, int ID) {
+
+        this.ID = ID;
 
         this.rm = new ResourceMannager();
 
@@ -97,6 +102,8 @@ public class Patch extends Sprite {
         this.isWatered = false;
         if (this.crop != null) {
             crop.setWatered(false);
+            crop.addDay();
+            
         }
 
     }
@@ -112,6 +119,8 @@ public class Patch extends Sprite {
     public void setWatered() {
         isWatered = true;
 
+        System.out.println(String.format("Dirt ID: %d Watered", ID));
+
         if (type.equals("dirt")) {
             if (isWatered) {
                 currentFrame = textureFrames[1][1];
@@ -120,7 +129,7 @@ public class Patch extends Sprite {
             }
 
         }
-        if (type.equals("grass")) {
+        else if (type.equals("grass")) {
             if (isWatered) {
                 currentFrame = textureFrames[0][1];
             } else {

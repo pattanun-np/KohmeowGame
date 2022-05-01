@@ -176,14 +176,14 @@ public class PlayerController implements InputProcessor {
         if (cell != null && overlaps == false) {
 
             if (cell.getTile().getId() == 99) {
-                patch = new Patch(coords.x, coords.y, "grass");
+                patch = new Patch(coords.x, coords.y, "grass", screen.numPatch);
                 screen.addPatch(patch);
                 rm.dirtSfx.play(.3f);
 
                 // digLeft = false;
                 // digRight = false;
             } else if (cell.getTile().getId() == 110) {
-                patch = new Patch(coords.x, coords.y, "dirt");
+                patch = new Patch(coords.x, coords.y, "dirt" ,screen.numPatch);
                 screen.addPatch(patch);
                 rm.dirtSfx.play(.3f);
                 // digLeft = false;

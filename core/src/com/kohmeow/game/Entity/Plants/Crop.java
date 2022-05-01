@@ -48,6 +48,7 @@ public class Crop extends Sprite {
         this.position = new Vector2(x, y);
         this.growthStage = 0;
         this.age = 0;
+        this.ID = ID;
 
         this.isWatered = false;
         this.name = name;
@@ -61,7 +62,7 @@ public class Crop extends Sprite {
         frameSprite = new Sprite(textureFrames[0][0], 0, 0, 32, 32);
         frameSprite.setX(Math.round(centerX / 32) * 32);
         frameSprite.setY(Math.round(centerY / 32) * 32);
-        this.ID = ID;
+ 
         loadinfo(name);
 
     }
@@ -103,6 +104,9 @@ public class Crop extends Sprite {
         checkGrowth();
 
 
+        System.out.println(String.format("Crop ID: %d Age: %d", ID, age));
+
+
     }
 
     private void checkGrowth() {
@@ -130,6 +134,9 @@ public class Crop extends Sprite {
 
     public void setWatered(boolean watered) {
         isWatered = watered;
+        if(isWatered)
+            System.out.println(String.format("Crop ID: %d Watered", ID));
+        
     }
 
     public boolean isDead() {

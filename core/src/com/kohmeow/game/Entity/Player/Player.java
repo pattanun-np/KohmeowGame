@@ -293,7 +293,7 @@ public class Player extends Sprite {
     public void setDirection(Direction direction, float delta) {
 
         this.currentDirection = direction;
-        System.out.println("CurrentDirection : " + currentDirection);
+        // System.out.println("CurrentDirection : " + currentDirection);
         switch (currentDirection) {
             case WALKING_DOWN:
                 currentFrame = walkDown.getKeyFrame(frameTime);

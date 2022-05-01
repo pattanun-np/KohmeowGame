@@ -79,7 +79,7 @@ public class GameScreen extends ScreenAdapter {
     public int numCrops;
     public int numPatch;
 
-    public int intType;
+
 
     private Music music;
     public Array<Crop> crops;
@@ -103,7 +103,7 @@ public class GameScreen extends ScreenAdapter {
     private GameTimeClock clock;
     private int money;
 
-    public int numCrosshair;
+
 
     private Info info;
     private HudInventory hudInventory;
@@ -142,10 +142,11 @@ public class GameScreen extends ScreenAdapter {
         this.game = game;
         this.create();
 
-        intType = 0;
+   
         numPatch = 0;
+        numCrops = 0;
         totalDays = 30;
-        currentDays = 0;
+        currentDays = 1;
         daysLeft = 30;
         money = 1000;
 
@@ -339,8 +340,6 @@ public class GameScreen extends ScreenAdapter {
         clock.act(delta);
 
         if (timer.getDaysPast() != currentDays) {
-            for (Crop crops : crops)
-                crops.addDay();
             for (Patch patchs : patchs)
                 patchs.addDay();
             currentDays = timer.getDaysPast();
