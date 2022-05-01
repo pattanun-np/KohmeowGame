@@ -1,30 +1,4 @@
 {
 "money": 1000,
-"numsCrops": 4,
-"cropsData": [
-	{
-		"name": "CarrotSeed",
-		"x": 429,
-		"y": 1714.3334,
-		"growStage": 3
-	},
-	{
-		"name": "CornSeed",
-		"x": 388.00003,
-		"y": 1713.3334,
-		"growStage": 2
-	},
-	{
-		"name": "WheatSeed",
-		"x": 367.5,
-		"y": 1710.3334,
-		"growStage": 2
-	},
-	{
-		"name": "PotatoSeed",
-		"x": 335.5,
-		"y": 1711.8334,
-		"growStage": 2
-	}
-]
+"cropsData": []
 }
