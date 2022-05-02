@@ -303,13 +303,12 @@ public class GameScreen extends ScreenAdapter {
         // System.out.println("Player X: " + player.getX() + " Y: " + player.getY());
         // System.out.println("Num Crops: " + numCrops);
         // System.out.println("Num Patchs: " + numPatch);
-        // System.out.println("Num Crosshair: " + numCrosshair);
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
 
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         renderer.render();
+
 
         cam.update();
         player.update(delta);
@@ -374,7 +373,7 @@ public class GameScreen extends ScreenAdapter {
 
         // System.out.println("Select Item: " + currentItem.getName());
 
-        info.draw(currentDays, totalDays, money, time); // Draw info
+       info.draw(currentDays,  totalDays, money, time); // Draw info
         hudInventory.draw(items, currentItem, font); // Draw inventory
         hudItem.draw(currentPlayerSprite, currentItem, font); // Draw item
 

@@ -66,6 +66,7 @@ public class PlayerController implements InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
+        System.out.println(keycode);
         if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A)
             this.left = true;
         if (keycode == Input.Keys.UP || keycode == Input.Keys.W)
@@ -180,14 +181,10 @@ public class PlayerController implements InputProcessor {
                 screen.addPatch(patch);
                 rm.dirtSfx.play(.3f);
 
-                // digLeft = false;
-                // digRight = false;
             } else if (cell.getTile().getId() == 110) {
                 patch = new Patch(coords.x, coords.y, "dirt" ,screen.numPatch);
                 screen.addPatch(patch);
                 rm.dirtSfx.play(.3f);
-                // digLeft = false;
-                // digRight = false;
             }
 
         }
@@ -197,7 +194,7 @@ public class PlayerController implements InputProcessor {
   
 
     public void waterPatch(Vector3 coords) {
-        Patch patch = null;
+        Patch patch;
         for (int i = 0; i < screen.numPatch; i++) {
             if (screen.patchs.get(i).getFrameSprite().getBoundingRectangle().contains(coords.x, coords.y)) {
                 patch = screen.patchs.get(i).getPatch();
@@ -217,7 +214,7 @@ public class PlayerController implements InputProcessor {
      * @param coords
      */
     public void plant(String name, Vector3 coords) {
-        Patch patch = null;
+        Patch patch;
         for (int i = 0; i < screen.numPatch; i++) {
             if (screen.patchs.get(i).getFrameSprite().getBoundingRectangle().contains(coords.x, coords.y)) {
                 patch = screen.patchs.get(i).getPatch();
@@ -239,7 +236,7 @@ public class PlayerController implements InputProcessor {
     }
 
     public void havest(Vector3 coords) {
-        Patch patch = null;
+        Patch patch;
 
         for (int i = 0; i < screen.numPatch; i++) {
             if (screen.patchs.get(i).getFrameSprite().getBoundingRectangle().contains(coords.x, coords.y)) {

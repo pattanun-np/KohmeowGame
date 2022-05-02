@@ -110,6 +110,7 @@ public class Crop extends Sprite {
     }
 
     private void checkGrowth() {
+
         if (age % growthStageDuration == 0 && growthStage != 3) {
             growthStage++;
             this.currentFrame = cropFrames.get(growthStage);
